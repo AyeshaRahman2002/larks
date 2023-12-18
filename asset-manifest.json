@@ -1,0 +1,35 @@
+{
+  "files": {
+    "main.css": "https://archie-adams.github.io/larks/static/css/main.e5a1fbf1.css",
+    "main.js": "https://archie-adams.github.io/larks/static/js/main.ca0f34fc.js",
+    "static/media/ease-mind.png": "https://archie-adams.github.io/larks/static/media/ease-mind.d24f03adeae632b5e859.png",
+    "static/media/roots-radar.png": "https://archie-adams.github.io/larks/static/media/roots-radar.25a0eaf233139d7bd66b.png",
+    "static/media/home.png": "https://archie-adams.github.io/larks/static/media/home.1cfab81690700b80a517.png",
+    "static/media/chatbot.png": "https://archie-adams.github.io/larks/static/media/chatbot.0f1ee9eaeab22d544735.png",
+    "static/media/canopy.png": "https://archie-adams.github.io/larks/static/media/canopy.738b2ed5defe46b9cbd2.png",
+    "static/media/tonsillitis-detector.png": "https://archie-adams.github.io/larks/static/media/tonsillitis-detector.c1c6b386eaf0659b53a7.png",
+    "static/media/tracking&notes.png": "https://archie-adams.github.io/larks/static/media/tracking&notes.7581e2b56c66d6eeaa2f.png",
+    "static/media/autism-detector.png": "https://archie-adams.github.io/larks/static/media/autism-detector.34ab06fd8883f198d04b.png",
+    "static/media/personaldetails.png": "https://archie-adams.github.io/larks/static/media/personaldetails.e6854b9ce4c9820ea9b6.png",
+    "static/media/questionnaire.png": "https://archie-adams.github.io/larks/static/media/questionnaire.5934ce4ec6ba54ea494d.png",
+    "static/media/feedback.png": "https://archie-adams.github.io/larks/static/media/feedback.a6a93603a98686f7b69b.png",
+    "static/media/paralysis-analysis.png": "https://archie-adams.github.io/larks/static/media/paralysis-analysis.5da09ccd7f87de567286.png",
+    "static/media/example.jpg": "https://archie-adams.github.io/larks/static/media/example.c6530fff51333dd200f3.jpg",
+    "static/media/mic.png": "https://archie-adams.github.io/larks/static/media/mic.ec07501b2ab2126765ec.png",
+    "static/media/skinscan.png": "https://archie-adams.github.io/larks/static/media/skinscan.5fea7379f84ec5f0972d.png",
+    "static/media/supportchat-logo.png": "https://archie-adams.github.io/larks/static/media/supportchat-logo.57a568917d8ffd7efdd3.png",
+    "static/media/questionnaire-logo.png": "https://archie-adams.github.io/larks/static/media/questionnaire-logo.5e5537790a0a5862aa48.png",
+    "static/media/depressiLess-logo.png": "https://archie-adams.github.io/larks/static/media/depressiLess-logo.0cb725ddfbfcb702ab1d.png",
+    "static/media/dipstik.png": "https://archie-adams.github.io/larks/static/media/dipstik.7e593acfc8cc70d60352.png",
+    "static/media/onlineresources-logo.png": "https://archie-adams.github.io/larks/static/media/onlineresources-logo.a30dfef3968533427be9.png",
+    "static/media/userinformation-logo.png": "https://archie-adams.github.io/larks/static/media/userinformation-logo.dd1efabbedbe95719d93.png",
+    "static/media/close.png": "https://archie-adams.github.io/larks/static/media/close.e6f6b81ee0167f4082b8.png",
+    "index.html": "https://archie-adams.github.io/larks/index.html",
+    "main.e5a1fbf1.css.map": "https://archie-adams.github.io/larks/static/css/main.e5a1fbf1.css.map",
+    "main.ca0f34fc.js.map": "https://archie-adams.github.io/larks/static/js/main.ca0f34fc.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e5a1fbf1.css",
+    "static/js/main.ca0f34fc.js"
+  ]
+}
