@@ -1,12 +1,11 @@
 {
   "files": {
-    "main.css": "/larks/static/css/main.e5a1fbf1.css",
-    "main.js": "/larks/static/js/main.3082b3f5.js",
+    "main.css": "/larks/static/css/main.3d3d0e0d.css",
+    "main.js": "/larks/static/js/main.9640bf17.js",
     "static/media/ease-mind.png": "/larks/static/media/ease-mind.d24f03adeae632b5e859.png",
     "static/media/roots-radar.png": "/larks/static/media/roots-radar.25a0eaf233139d7bd66b.png",
     "static/media/home.png": "/larks/static/media/home.1cfab81690700b80a517.png",
     "static/media/chatbot.png": "/larks/static/media/chatbot.0f1ee9eaeab22d544735.png",
-    "static/media/canopy.png": "/larks/static/media/canopy.738b2ed5defe46b9cbd2.png",
     "static/media/tonsillitis-detector.png": "/larks/static/media/tonsillitis-detector.c1c6b386eaf0659b53a7.png",
     "static/media/tracking&notes.png": "/larks/static/media/tracking&notes.7581e2b56c66d6eeaa2f.png",
     "static/media/autism-detector.png": "/larks/static/media/autism-detector.34ab06fd8883f198d04b.png",
@@ -17,6 +16,7 @@
     "static/media/example.jpg": "/larks/static/media/example.c6530fff51333dd200f3.jpg",
     "static/media/mic.png": "/larks/static/media/mic.ec07501b2ab2126765ec.png",
     "static/media/skinscan.png": "/larks/static/media/skinscan.5fea7379f84ec5f0972d.png",
+    "static/media/PageNotFound.png": "/larks/static/media/PageNotFound.fd7511afbb903522deda.png",
     "static/media/supportchat-logo.png": "/larks/static/media/supportchat-logo.57a568917d8ffd7efdd3.png",
     "static/media/questionnaire-logo.png": "/larks/static/media/questionnaire-logo.5e5537790a0a5862aa48.png",
     "static/media/depressiLess-logo.png": "/larks/static/media/depressiLess-logo.0cb725ddfbfcb702ab1d.png",
@@ -25,11 +25,11 @@
     "static/media/userinformation-logo.png": "/larks/static/media/userinformation-logo.dd1efabbedbe95719d93.png",
     "static/media/close.png": "/larks/static/media/close.e6f6b81ee0167f4082b8.png",
     "index.html": "/larks/index.html",
-    "main.e5a1fbf1.css.map": "/larks/static/css/main.e5a1fbf1.css.map",
-    "main.3082b3f5.js.map": "/larks/static/js/main.3082b3f5.js.map"
+    "main.3d3d0e0d.css.map": "/larks/static/css/main.3d3d0e0d.css.map",
+    "main.9640bf17.js.map": "/larks/static/js/main.9640bf17.js.map"
   },
   "entrypoints": [
-    "static/css/main.e5a1fbf1.css",
-    "static/js/main.3082b3f5.js"
+    "static/css/main.3d3d0e0d.css",
+    "static/js/main.9640bf17.js"
   ]
 }
