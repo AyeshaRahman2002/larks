@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.e5a1fbf1.css",
-    "main.js": "/static/js/main.db8a9293.js",
+    "main.js": "/static/js/main.0110617d.js",
     "static/media/ease-mind.png": "/static/media/ease-mind.d24f03adeae632b5e859.png",
     "static/media/roots-radar.png": "/static/media/roots-radar.25a0eaf233139d7bd66b.png",
     "static/media/home.png": "/static/media/home.1cfab81690700b80a517.png",
@@ -26,10 +26,10 @@
     "static/media/close.png": "/static/media/close.e6f6b81ee0167f4082b8.png",
     "index.html": "/index.html",
     "main.e5a1fbf1.css.map": "/static/css/main.e5a1fbf1.css.map",
-    "main.db8a9293.js.map": "/static/js/main.db8a9293.js.map"
+    "main.0110617d.js.map": "/static/js/main.0110617d.js.map"
   },
   "entrypoints": [
     "static/css/main.e5a1fbf1.css",
-    "static/js/main.db8a9293.js"
+    "static/js/main.0110617d.js"
   ]
 }
