@@ -2,9 +2,11 @@ import os, time, json, base64
 from datetime import timedelta
 from app import bcrypt, db
 from flask import request, jsonify, Blueprint, current_app
-from .models import Users
+from .models import Users, personaldetails
 from flask_jwt_extended import JWTManager, get_jwt_identity
 from flask_jwt_extended import create_access_token, jwt_required
+from flask_cors import cross_origin
+from datetime import datetime
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -96,3 +98,73 @@ def upload():
 @jwt_required()
 def verification():
     return {'user': get_jwt_identity()}
+
+
+
+
+@auth_bp.route('/save_personal_details', methods=['POST'])
+@cross_origin(origin='http://localhost:5000', headers=['Content-Type'])
+def save_personal_details():
+    data = request.json
+
+    # Convert the date string to a Python date object
+    date_of_birth = datetime.strptime(data['dateOfBirth'], '%Y-%m-%d').date()
+
+    new_details = personaldetails(
+        first_name=data['firstName'],
+        last_name=data['lastName'],
+        date_of_birth=date_of_birth,  # Use the date object here
+        email=data['email'],
+        gender=data['gender'],
+        occupation=data['occupation'],
+        education=data['education'],
+        interests=data['interests'],
+        nationality=data['nationality'],
+        ethnicity=data['ethnicity']
+    )
+
+    db.session.add(new_details)
+    db.session.commit()
+
+    return jsonify({"msg": "Details saved successfully."}), 200
+
+@auth_bp.route('/get_personal_details', methods=['GET'])
+@cross_origin(origin='http://localhost:5000', headers=['Content-Type'])
+def get_personal_details():
+    # Assuming you have a user's identity, you can fetch their details
+    user_id = get_jwt_identity()
+    details = personaldetails.query.filter_by(user_id=user_id).first()
+
+    if details:
+        return jsonify({
+            'firstName': details.first_name,
+            'lastName': details.last_name,
+        }), 200
+    else:
+        return jsonify({"msg": "Details not found."}), 404
+
+@auth_bp.route('/add_note', methods=['POST'])
+@jwt_required()
+def add_note():
+    user_id = get_jwt_identity()
+    data = request.json
+    print("Received data:", data)  # Debug print
+
+    try:
+        new_note = AutismDetectorNotes(
+            user_id=user_id,
+            date=datetime.strptime(data['date'], '%Y-%m-%d').date(),
+            time=datetime.strptime(data['time'], '%H:%M:%S').time(),
+            notes=data['notes']
+        )
+
+        print("New note:", new_note)  # Debug print
+        db.session.add(new_note)
+        db.session.commit()
+        return jsonify({"msg": "Note added successfully."}), 200
+
+    except Exception as e:
+        print("Error:", e)  # Debug print
+        return jsonify({"error": str(e)}), 400
+
+

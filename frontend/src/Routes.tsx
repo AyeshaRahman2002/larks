@@ -37,7 +37,9 @@ import RootsRadar from './apps/RootsRadar/RootsRadar';
 import AutismDetector from './apps/AutismDetector/AutismDetector';
 
 import AutismDetectorPersonalDetails from './apps/AutismDetector/personaldetails';
+import AutismDetectorEditPersonalDetails from './apps/AutismDetector/editpersonaldetails';
 import AutismDetectorQuestionnaire from './apps/AutismDetector/questionnaire';
+import AutismDetectorTrackingAndNotes from './apps/AutismDetector/trackingandnotes';
 
 import EaseMind from './apps/EaseMind/EaseMind';
 import EaseMindPersonalDetails from './apps/EaseMind/PersonalDetails';
@@ -96,7 +98,9 @@ function Routes() {
 
         <Route path="/autism_instructions" element={<AutismDetector />} />
         <Route path="/autism_instructions/personaldetails" element={<AutismDetectorPersonalDetails />} />
+        <Route path="/autism_instructions/editpersonaldetails" element={<AutismDetectorEditPersonalDetails />} />
         <Route path="/autism_instructions/questionnaire" element={<AutismDetectorQuestionnaire />} />
+        <Route path="/autism_instructions/trackingandnotes" element={<AutismDetectorTrackingAndNotes />} />
 
         <Route path="/DepressiLess" element={<DepressiLess />} />
 

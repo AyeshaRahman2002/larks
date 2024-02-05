@@ -332,7 +332,7 @@ function AutismDetector() {
       <button type="button" style={chatbotIconStyle} onClick={toggleChatbot}>
         Click to Chat
       </button>
-      {showChatbot && <Chatbot />}
+      {showChatbot && <Chatbot onClose={toggleChatbot} />}
     </div>
   );
 }

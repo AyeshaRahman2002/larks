@@ -30,6 +30,8 @@ def create_app(testing=False):
     path = Path("app.py")
     if not Path.is_file(path):
         CORS(app) # Enables CORS
+        # Enable CORS for your frontend URLs
+        cors = CORS(app, resources={r"/save_personal_details": {"origins": ["http://localhost:5000", "http://localhost:3000"]}})
         print("Running locally - CORS has been enabled.")
     else:
         print("Running on EC2 - CORS not enabled in __init__.py")
