@@ -28,40 +28,35 @@ function Questionnaire() {
     // Add more questions as needed
   ];
 
-  const calculateProbability = (userAnswers) => {
-    let totalScore = 0;
-    const totalQuestions = questions.length;
-
-    Object.keys(userAnswers).forEach((id) => {
-      if (userAnswers[id] === 'yes') {
-        totalScore += 1;
-      }
-    });
-
-    const percentage = (totalScore / totalQuestions) * 100;
-
-    if (percentage >= 70) {
-      return `High probability of ASD (${percentage.toFixed(2)}%)`;
-    }
-    if (percentage >= 30) {
-      return `Moderate probability of ASD (${percentage.toFixed(2)}%)`;
-    }
-    return `Low probability of ASD (${percentage.toFixed(2)}%)`;
-  };
-
   const handleChange = (id, value) => {
     setAnswers({ ...answers, [id]: value });
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    const probability = calculateProbability(answers);
-    setTestResult(probability);
+    try {
+      const response = await fetch('/api/assessment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ answers }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setTestResult(`Model prediction: ${data.prediction}`);
+      } else {
+        console.error('Failed to fetch the prediction from the server');
+        setTestResult('There was a problem with your submission. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error submitting the form:', error);
+      setTestResult('An error occurred. Please try again.');
+    }
   };
 
-  const handleGoBack = () => {
-    navigate('/autism_instructions');
-  };
+  const handleGoBack = () => navigate(-1);
 
   return (
     <form onSubmit={handleSubmit}>
@@ -76,8 +71,10 @@ function Questionnaire() {
           </label>
           <select id={`question-${question.id}`} className="question-select" onChange={(e) => handleChange(question.id, e.target.value)}>
             <option value="">Select an option</option>
-            <option value="yes">Yes</option>
-            <option value="no">No</option>
+            <option value="often">Often</option>
+            <option value="sometimes">Sometimes</option>
+            <option value="rarely">Rarely</option>
+            <option value="never">Never</option>
           </select>
         </div>
       ))}

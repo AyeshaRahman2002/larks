@@ -2,11 +2,12 @@ import os, time, json, base64
 from datetime import timedelta
 from app import bcrypt, db
 from flask import request, jsonify, Blueprint, current_app
-from .models import Users, personaldetails
+from .models import Users
 from flask_jwt_extended import JWTManager, get_jwt_identity
 from flask_jwt_extended import create_access_token, jwt_required
 from flask_cors import cross_origin
 from datetime import datetime
+# from transformers import pipeline
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -16,6 +17,7 @@ from app.lanre.lanre import *  # noqa: F403, F401
 from app.ramat.ramat import *  # noqa: F403, F401
 #from app.shreyas.shreyas import *  # noqa: F403, F401
 from app.rootsRadar.rootsRadar import *  # noqa: F403, F401
+from app.AutismDetector.AutismDetector import *  # noqa: F403, F401
 
 # ---------------------------------------------------------------------------- #
 
@@ -102,69 +104,105 @@ def verification():
 
 
 
-@auth_bp.route('/save_personal_details', methods=['POST'])
-@cross_origin(origin='http://localhost:5000', headers=['Content-Type'])
-def save_personal_details():
-    data = request.json
+# @auth_bp.route('/save_personal_details', methods=['POST'])
+# @cross_origin(origin='http://localhost:5000', headers=['Content-Type'])
+# @jwt_required()
+# def save_personal_details():
+#     data = request.json
 
-    # Convert the date string to a Python date object
-    date_of_birth = datetime.strptime(data['dateOfBirth'], '%Y-%m-%d').date()
+#     # Get the user's identity (id) from the JWT token
+#     user_id = get_jwt_identity()
 
-    new_details = personaldetails(
-        first_name=data['firstName'],
-        last_name=data['lastName'],
-        date_of_birth=date_of_birth,  # Use the date object here
-        email=data['email'],
-        gender=data['gender'],
-        occupation=data['occupation'],
-        education=data['education'],
-        interests=data['interests'],
-        nationality=data['nationality'],
-        ethnicity=data['ethnicity']
-    )
+#     # Check if a record with the same email exists in the personaldetails table
+#     existing_details = personaldetails.query.filter_by(email=data['email']).first()
 
-    db.session.add(new_details)
-    db.session.commit()
+#     if existing_details:
+#         # Update the existing record with the new data
+#         existing_details.first_name = data['firstName']
+#         existing_details.last_name = data['lastName']
+#         existing_details.date_of_birth = datetime.strptime(data['dateOfBirth'], '%Y-%m-%d').date()
+#         existing_details.gender = data['gender']
+#         existing_details.occupation = data['occupation']
+#         existing_details.education = data['education']
+#         existing_details.interests = data['interests']
+#         existing_details.nationality = data['nationality']
+#         existing_details.ethnicity = data['ethnicity']
+#     else:
+#         # Create a new personal details record
+#         new_details = personaldetails(
+#             user_id=user_id,
+#             first_name=data['firstName'],
+#             last_name=data['lastName'],
+#             date_of_birth=datetime.strptime(data['dateOfBirth'], '%Y-%m-%d').date(),
+#             email=data['email'],
+#             gender=data['gender'],
+#             occupation=data['occupation'],
+#             education=data['education'],
+#             interests=data['interests'],
+#             nationality=data['nationality'],
+#             ethnicity=data['ethnicity']
+#         )
 
-    return jsonify({"msg": "Details saved successfully."}), 200
-
-@auth_bp.route('/get_personal_details', methods=['GET'])
-@cross_origin(origin='http://localhost:5000', headers=['Content-Type'])
-def get_personal_details():
-    # Assuming you have a user's identity, you can fetch their details
-    user_id = get_jwt_identity()
-    details = personaldetails.query.filter_by(user_id=user_id).first()
-
-    if details:
-        return jsonify({
-            'firstName': details.first_name,
-            'lastName': details.last_name,
-        }), 200
-    else:
-        return jsonify({"msg": "Details not found."}), 404
-
-@auth_bp.route('/add_note', methods=['POST'])
-@jwt_required()
-def add_note():
-    user_id = get_jwt_identity()
-    data = request.json
-    print("Received data:", data)  # Debug print
-
-    try:
-        new_note = AutismDetectorNotes(
-            user_id=user_id,
-            date=datetime.strptime(data['date'], '%Y-%m-%d').date(),
-            time=datetime.strptime(data['time'], '%H:%M:%S').time(),
-            notes=data['notes']
-        )
-
-        print("New note:", new_note)  # Debug print
-        db.session.add(new_note)
-        db.session.commit()
-        return jsonify({"msg": "Note added successfully."}), 200
-
-    except Exception as e:
-        print("Error:", e)  # Debug print
-        return jsonify({"error": str(e)}), 400
+#         db.session.add(new_details)
+    
+#     db.session.commit()
+#     return jsonify({"msg": "Details saved/updated successfully."}), 200
 
 
+
+# @auth_bp.route('/get_personal_details', methods=['GET'])
+# @cross_origin(origin='http://localhost:5000', headers=['Content-Type'])
+# def get_personal_details():
+#     # Assuming you have a user's identity, you can fetch their details
+#     user_id = get_jwt_identity()
+#     details = personaldetails.query.filter_by(user_id=user_id).first()
+
+#     if details:
+#         return jsonify({
+#             'firstName': details.first_name,
+#             'lastName': details.last_name,
+#         }), 200
+#     else:
+#         return jsonify({"msg": "Details not found."}), 404
+
+# # Load the pre-trained model (consider doing this lazily or in a way that minimizes impact on app startup time)
+# nlp_model = pipeline('sentiment-analysis')
+
+# @auth_bp.route('/analyze', methods=['POST'])
+# def analyze_text():
+#     data = request.json
+#     text = data.get('text')
+#     try:
+#         result = nlp_model(text)
+#         return jsonify(result)
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 500
+
+
+# @auth_bp.route('/api/notes', methods=['POST'])
+# @jwt_required()
+# def create_note():
+#     user_id = get_jwt_identity()
+#     data = request.json
+#     content = data.get('content')
+
+#     if not content:
+#         return jsonify({"msg": "Content is required."}), 400
+    
+#     try:
+#         note = Note(user_id=user_id, content=content)
+#         db.session.add(note)
+#         db.session.commit()
+#         return jsonify({"msg": "Note added successfully.", "note_id": note.id}), 201
+#     except Exception as e:
+#         # Log the exception to server logs
+#         print(f"Failed to add note: {e}")
+#         return jsonify({"msg": "Failed to add note due to an internal error."}), 500
+
+# @auth_bp.route('/api/notes', methods=['GET'])
+# @jwt_required()
+# def get_notes():
+#     user_id = get_jwt_identity()
+#     note = Note.query.filter_by(user_id=user_id).all()
+
+#     return jsonify([{'id': note.id, 'content': note.content, 'created_at': note.created_at} for note in note]), 200

@@ -40,6 +40,8 @@ import AutismDetectorPersonalDetails from './apps/AutismDetector/personaldetails
 import AutismDetectorEditPersonalDetails from './apps/AutismDetector/editpersonaldetails';
 import AutismDetectorQuestionnaire from './apps/AutismDetector/questionnaire';
 import AutismDetectorTrackingAndNotes from './apps/AutismDetector/trackingandnotes';
+import AutismDetectorGame from './apps/AutismDetector/game.js';
+import AutismDetectorTest from './apps/AutismDetector/test.js';
 
 import EaseMind from './apps/EaseMind/EaseMind';
 import EaseMindPersonalDetails from './apps/EaseMind/PersonalDetails';
@@ -101,6 +103,8 @@ function Routes() {
         <Route path="/autism_instructions/editpersonaldetails" element={<AutismDetectorEditPersonalDetails />} />
         <Route path="/autism_instructions/questionnaire" element={<AutismDetectorQuestionnaire />} />
         <Route path="/autism_instructions/trackingandnotes" element={<AutismDetectorTrackingAndNotes />} />
+        <Route path="/autism_instructions/game" element={<AutismDetectorGame />} />
+        <Route path="/autism_instructions/test" element={<AutismDetectorTest />} />
 
         <Route path="/DepressiLess" element={<DepressiLess />} />
 

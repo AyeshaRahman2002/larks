@@ -1,9 +1,51 @@
 import React, { useState, useEffect } from 'react'; // Import useState and useEffect from React
 import { Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import Chatbot from './Chatbot'; // Import the Chatbot component
 import autismHomeImage from '../../images/autism-home.png';
 import greenImage from '../../images/green.png';
 import greyImage from '../../images/grey.png';
+
+// Pop up
+function PopUp({ show, onClose }) {
+  if (!show) {
+    return null;
+  }
+
+  const popupStyles = {
+    border: '10px solid #034d32', // Dark green border
+    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)', // 3D shadow
+  };
+
+  const popupContentStyles = {
+    width: '1000px', // Adjust the width as needed
+    height: '500px', // Adjust the height as needed
+    padding: '20px', // Add padding for better spacing
+    backgroundColor: 'white', // Background color for the white part
+  };
+
+  return (
+    <div className="popupBackground" style={popupStyles}>
+      <div className="popupContent" style={popupContentStyles}>
+        <button type="button" className="popupClose" onClick={onClose}>&times;</button>
+        <h1>Warning:</h1>
+        <br />
+        <p>
+          This website represents a project created by a computer science student affiliated with the University of Leeds. It is important to note that this website is not intended to serve as a substitute for professional assistance or guidance for individuals with autism spectrum disorders (ASD). If you or someone you know is autistic and seeking support or advice related to ASD, it is strongly recommended that you consult with qualified and licensed professionals who specialize in autism-related matters.
+          Additionally, please exercise caution while navigating this website, as its content may contain elements that could potentially trigger discomfort or unease in certain individuals. The website&apos;s primary purpose is educational or developmental, and it may not adhere to the specific requirements or standards associated with professional resources for individuals with autism.
+          The well-being and mental health of individuals with autism are of paramount importance, and seeking guidance from experienced professionals is a prudent step to ensure the best possible support and care.
+          It&apos;s worth mentioning that this website follows the criteria outlined in the Diagnostic and Statistical Manual of Mental Disorders, Fifth Edition (DSM-5) to provide accurate information and resources regarding autism spectrum disorders.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// Define PropTypes for PopUp
+PopUp.propTypes = {
+  show: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+};
 
 function AutismDetector() {
   const userEmail = sessionStorage.getItem('email')
@@ -11,6 +53,7 @@ function AutismDetector() {
     : 'User';
 
   const [showChatbot, setShowChatbot] = useState(false);
+  const [showPopUp, setShowPopUp] = useState(true);
 
   const toggleChatbot = () => {
     setShowChatbot(!showChatbot);
@@ -240,7 +283,7 @@ function AutismDetector() {
       <div style={taskbarStyle}>
         <div>
           <Link to="/autism_instructions/personaldetails" style={taskbarItemStyle} className="taskbar-link">Personal Details</Link>
-          <Link to="/autism_instructions/questionnaire" style={taskbarItemStyle} className="taskbar-link">Questionnaire</Link>
+          <Link to="/autism_instructions/test" style={taskbarItemStyle} className="taskbar-link">Test</Link>
           <Link to="/autism_instructions/feedback" style={taskbarItemStyle} className="taskbar-link">Feedback</Link>
           <Link to="/autism_instructions/trackingandnotes" style={taskbarItemStyle} className="taskbar-link">Tracking & Notes</Link>
         </div>
@@ -333,6 +376,7 @@ function AutismDetector() {
         Click to Chat
       </button>
       {showChatbot && <Chatbot onClose={toggleChatbot} />}
+      <PopUp show={showPopUp} onClose={() => setShowPopUp(false)} />
     </div>
   );
 }

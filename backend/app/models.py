@@ -1,5 +1,6 @@
 from app import db
 from sqlalchemy.orm import validates, relationship
+from datetime import datetime
 
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -36,7 +37,7 @@ class RootRadarMVPTest(db.Model):
 class personaldetails(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))  # This sets up the foreign key relationship
-    user = relationship("Users")  # This creates a relationship with the Users model
+    user = db.relationship("Users")
     first_name = db.Column(db.String(100))
     last_name = db.Column(db.String(100))
     date_of_birth = db.Column(db.Date)
@@ -51,13 +52,8 @@ class personaldetails(db.Model):
     def __repr__(self):
         return '<personaldetails {}>'.format(self.email)
 
-class AutismDetectorNotes(db.Model):
+class Note(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  # Foreign key to users
-    user = relationship("Users", backref="autism_detector_notes")  # Establishes the relationship
-    date = db.Column(db.Date, nullable=False)
-    time = db.Column(db.Time, nullable=False)
-    notes = db.Column(db.String(1000), nullable=False)
-
-    def __repr__(self):
-        return f"<AutismDetectorNotes {self.date} {self.time} {self.notes}>"
+    note = db.Column(db.String, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    prediction = db.Column(db.Integer)  # Add this line to store the prediction result

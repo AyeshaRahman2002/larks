@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate instead of useHistory
 import './editpersonaldetails.css';
+import { AuthTokenContext } from '../../App';
 
 function EditPersonalDetailsForm() {
   const [details, setDetails] = useState({
+    userId: '', // Initialize userId
     firstName: '',
     lastName: '',
     dateOfBirth: '',
@@ -16,6 +18,7 @@ function EditPersonalDetailsForm() {
     ethnicity: '',
   });
   const navigate = useNavigate(); // Hook for navigation
+  const { token } = useContext(AuthTokenContext);
 
   const handleChange = (e) => {
     setDetails({
@@ -25,27 +28,49 @@ function EditPersonalDetailsForm() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevent default form submission behavior
+
+    // Assuming you've already defined 'details' state that contains all form fields
+    // Make sure the names of the state properties match the model's attributes in your backend
 
     try {
+      // Replace the URL with your actual endpoint
       const response = await fetch('http://127.0.0.1:5000/save_personal_details', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          // Assuming 'token' is defined in your component's state or context
+          // For example, it could come from useContext(AuthTokenContext) if you're following a pattern similar to trackingandnotes.js
+          Authorization: `Bearer ${token}`, // Add this only if your endpoint requires authentication
         },
-        body: JSON.stringify(details),
+        body: JSON.stringify({
+          // Map your 'details' state to the expected JSON structure required by your Flask API
+          // Assuming your API expects camelCase keys, convert them if necessary
+          user_id: details.userId, // Include this if your model expects a 'user_id', and ensure it's available in your state
+          firstName: details.firstName,
+          lastName: details.lastName,
+          dateOfBirth: details.dateOfBirth,
+          email: details.email,
+          gender: details.gender,
+          occupation: details.occupation,
+          education: details.education,
+          interests: details.interests,
+          nationality: details.nationality,
+          ethnicity: details.ethnicity,
+        }),
       });
 
       if (!response.ok) {
-        // Handle response errors
+        // If the server response was not OK, handle errors
         const errorData = await response.json();
         console.error('Error:', errorData.msg);
         alert(`Failed to save details: ${errorData.msg}`);
       } else {
-        // Handle success
+        // On success, you may want to clear the form, navigate to another route, or display a success message
         const result = await response.json();
         console.log('Success:', result.msg);
         alert('Successfully saved!');
+
         // Optionally, navigate to another route upon success
         // navigate('/some-other-route');
       }
@@ -56,9 +81,7 @@ function EditPersonalDetailsForm() {
     }
   };
 
-  const handleGoBack = () => {
-    navigate('/autism_instructions'); // Redirect to '/autism_instructions'
-  };
+  const handleGoBack = () => navigate(-1);
 
   return (
     <div className="form-container">

@@ -41,9 +41,7 @@ function DisplayPersonalDetails() {
     navigate('/autism_instructions/editpersonaldetails');
   };
 
-  const handleGoBack = () => {
-    navigate('/autism_instructions'); // Redirect to '/autism_instructions'
-  };
+  const handleGoBack = () => navigate(-1);
 
   return (
     <div className="details-container">
