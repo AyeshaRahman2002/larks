@@ -339,7 +339,7 @@ function AutismDetector() {
           <u>M</u>
           ysterious
           <br />
-          <Link to="/autism_instructions/questionnaire" style={buttonStyle}>
+          <Link to="/autism_instructions/questionnairetype" style={buttonStyle}>
             <u>Take a Questionnaire</u>
           </Link>
         </div>

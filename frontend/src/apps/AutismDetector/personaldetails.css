@@ -1,0 +1,53 @@
+.detailsTitleContainer {
+  background-color: #013220; /* Dark green background */
+  color: white; /* White text color */
+  padding: 20px; /* Padding around the text */
+  text-align: center; /* Center the text */
+  width: 80%;
+  margin-left: auto; /* Center horizontally */
+  margin-right: auto;
+}
+
+.detailsFormContainer {
+  background-color: #bedfc5; /* Light green background */
+  padding: 20px; /* Padding inside the container */
+  margin-top: 20px; /* Space above the form container */
+  margin-left: auto; /* Center horizontally */
+  margin-right: auto; /* Center horizontally */
+  display: flex;
+  flex-direction: column; /* Align fields vertically */
+  gap: 10px; /* Space between each field */
+  width: 80%;
+}
+
+/* Style for each label within the form to ensure they are full width and wrap the input */
+.detailsFormContainer label {
+  display: block; /* Makes label use full width */
+  margin-bottom: 10px; /* Space below each label */
+  color: #013220; /* Dark green color */
+  font-weight: bold; /* Make text bold */
+}
+
+
+/* Additional styles for inputs, selects, and the button to make them more consistent */
+.detailsFormContainer input,
+.detailsFormContainer select,
+.AutismDetectorButton {
+  width: 20%; /* Full width to fill the container */
+  padding: 8px; /* Padding for better touch */
+  margin-top: 5px; /* Space above inputs/selects */
+}
+
+.AutismDetectorButton {
+  background-color: #034d32; /* Dark green background */
+  color: white; /* White text */
+  border: none; /* Remove border */
+  padding: 10px 15px; /* Padding around text */
+  cursor: pointer; /* Cursor as pointer */
+  transition: background-color 0.3s; /* Smooth background transition */
+  font-weight: bold;
+}
+
+.AutismDetectorButton:hover {
+  background-color: #013220; /* Darker green on hover */
+}

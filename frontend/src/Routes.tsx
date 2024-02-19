@@ -35,10 +35,12 @@ import DipstikResults from './apps/Dipstik/DipstikResults';
 import RootsRadar from './apps/RootsRadar/RootsRadar';
 
 import AutismDetector from './apps/AutismDetector/AutismDetector';
-
 import AutismDetectorPersonalDetails from './apps/AutismDetector/personaldetails';
-import AutismDetectorEditPersonalDetails from './apps/AutismDetector/editpersonaldetails';
-import AutismDetectorQuestionnaire from './apps/AutismDetector/questionnaire';
+import AutismDetectorQuestionnaireType from './apps/AutismDetector/questionnairetype';
+import AutismDetectorAQ10 from './apps/AutismDetector/aq10';
+import AutismDetectorAutismSpectrumQuotient from './apps/AutismDetector/autismspectrumquotient';
+import AutismDetectorCATQ from './apps/AutismDetector/catq';
+import AutismDetectorRAADSR from './apps/AutismDetector/raadsr';
 import AutismDetectorTrackingAndNotes from './apps/AutismDetector/trackingandnotes';
 import AutismDetectorGame from './apps/AutismDetector/game.js';
 import AutismDetectorTest from './apps/AutismDetector/test.js';
@@ -100,8 +102,11 @@ function Routes() {
 
         <Route path="/autism_instructions" element={<AutismDetector />} />
         <Route path="/autism_instructions/personaldetails" element={<AutismDetectorPersonalDetails />} />
-        <Route path="/autism_instructions/editpersonaldetails" element={<AutismDetectorEditPersonalDetails />} />
-        <Route path="/autism_instructions/questionnaire" element={<AutismDetectorQuestionnaire />} />
+        <Route path="/autism_instructions/questionnairetype" element={<AutismDetectorQuestionnaireType />} />
+        <Route path="/autism_instructions/aq10" element={<AutismDetectorAQ10 />} />
+        <Route path="/autism_instructions/autismspectrumquotient" element={<AutismDetectorAutismSpectrumQuotient />} />
+        <Route path="/autism_instructions/cat_q" element={<AutismDetectorCATQ />} />
+        <Route path="/autism_instructions/raads_r" element={<AutismDetectorRAADSR />} />
         <Route path="/autism_instructions/trackingandnotes" element={<AutismDetectorTrackingAndNotes />} />
         <Route path="/autism_instructions/game" element={<AutismDetectorGame />} />
         <Route path="/autism_instructions/test" element={<AutismDetectorTest />} />

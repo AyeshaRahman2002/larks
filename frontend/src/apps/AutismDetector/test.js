@@ -92,7 +92,7 @@ function TestComponent() {
         <div style={buttonContainerStyle}>
           {/* Use Link as the button itself */}
           <div style={buttonBoxStyle}>
-            <Link to="/autism_instructions/questionnaire" style={linkStyle}>
+            <Link to="/autism_instructions/questionnairetype" style={linkStyle}>
               Go to Questionnaire
             </Link>
             <p style={descriptionStyle}>This questionnaire is designed to explore various aspects of social communication and behavior in alignment with the Diagnostic and Statistical Manual of Mental Disorders, Fifth Edition (DSM-5) criteria for Autism Spectrum Disorder (ASD). The DSM-5 emphasizes two core areas for diagnosis: deficits in social communication and social interaction across multiple contexts, and restricted, repetitive patterns of behavior, interests, or activities. The questions are crafted to reflect these core areas and help identify individuals who may exhibit signs consistent with ASD. Each question encourages self-reflection on aspects of social communication, relationships, and behavioral patterns that individuals may find challenging. For example, questions about difficulties in engaging in back-and-forth conversations, understanding social cues like eye contact and facial expressions, and adapting to changes in routines or schedules are directly related to the DSM-5 criteria for ASD. The questionnaire will take 15-20 minutes depending on the user.</p>

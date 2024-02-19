@@ -1,6 +1,6 @@
 from app import db
 from sqlalchemy.orm import validates, relationship
-from datetime import datetime
+from datetime import datetime, date
 
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -23,6 +23,9 @@ class Users(db.Model):
         # return email field and chain validate the password
         return email
 
+    #relationship to PersonalDetails. uselist=False to ensure one-to-one.
+    personal_details = relationship('personaldetails', back_populates='user', uselist=False)
+
     @validates('password')
     def validate_password(self, key, password):
         # Check for empty password
@@ -35,25 +38,47 @@ class RootRadarMVPTest(db.Model):
     text = db.Column(db.String(500))
 
 class personaldetails(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))  # This sets up the foreign key relationship
-    user = db.relationship("Users")
-    first_name = db.Column(db.String(100))
-    last_name = db.Column(db.String(100))
-    date_of_birth = db.Column(db.Date)
-    email = db.Column(db.String(500), unique=True)
-    gender = db.Column(db.String(50))
-    occupation = db.Column(db.String(100))
-    education = db.Column(db.String(100))
-    interests = db.Column(db.String(500))
-    nationality = db.Column(db.String(100))
-    ethnicity = db.Column(db.String(100))
+    __tablename__ = 'personaldetails'
 
-    def __repr__(self):
-        return '<personaldetails {}>'.format(self.email)
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    firstName = db.Column(db.String(500))
+    lastName = db.Column(db.String(500))
+    DOB = db.Column(db.Date)
+    gender = db.Column(db.String(50))
+    postCode = db.Column(db.String(100))
+    city = db.Column(db.String(500))
+    countryOfResidence = db.Column(db.String(500))
+    highestEducation = db.Column(db.String(500))
+    ethnicity = db.Column(db.String(500))
+    nationality = db.Column(db.String(500))
+    sexuality = db.Column(db.String(50))
+    user = relationship('Users', back_populates='personal_details', uselist=False)
+
+    @validates('DOB')
+    def validate_DOB(self, key, DOB):
+        if isinstance(DOB, date):
+            birth_date = DOB
+        else:
+            birth_date = datetime.strptime(DOB, "%Y-%m-%d").date()
+        
+        today = date.today()
+        age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
+        if age < 18:
+            raise AssertionError('You must be older than 18 to use this service.')
+        
+        return birth_date
 
 class Note(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     note = db.Column(db.String, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     prediction = db.Column(db.Integer)  # Add this line to store the prediction result
+
+class AutismDetectorFeedback(db.Model):
+    __tablename__ = 'AutismDetectorFeedback'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    totalScore = db.Column(db.Integer, nullable=False)
+    user = relationship('Users', backref='feedback')
