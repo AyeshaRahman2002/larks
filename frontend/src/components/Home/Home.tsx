@@ -86,7 +86,7 @@ function Home() {
       slogan: 'Always Unique Totally Intelligent Sometimes Mysterious',
     },
     {
-      to: '/food_allergy_chatbot',
+      to: '/Allerdine/Chatbot',
       logo: chatbotLogo,
       alt: 'chatbotLogo',
       slogan: 'Empowering healthcare solutions.',

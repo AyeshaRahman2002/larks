@@ -1,0 +1,108 @@
+// apple browser scrollbar hidden
+::-webkit-scrollbar {
+  display: none;
+  width: 0;
+}
+
+img {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+input[type="text"] {
+  padding: 0.5rem!important;
+  margin-bottom: 0!important;
+  border-radius: 0.25rem!important;
+}
+
+.row-item {
+  margin-bottom: 1rem;
+}
+.row-item:last-child {
+  margin-bottom: 0;
+}
+.col-item {
+  margin-right: 1rem;
+}
+.col-item:last-child {
+  margin-right: 0;
+}
+
+.chatbot-container {
+  box-sizing: border-box;
+  height: 100vh;
+  text-align: left;
+
+  .chatbot-icon {
+    height: 2rem;
+    width: 2rem;
+    padding: 0.25rem;
+    cursor: pointer;
+
+    img {
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  .chatbot-title {
+    padding: 2rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 2rem;
+  }
+
+  .chatbot-btn {
+    cursor: pointer;
+    display: inline-block;
+    color: gray;
+    background: white;
+    font-size: 0.8rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.25rem;
+  }
+}
+
+
+.post-body {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  .post-top {
+    flex: 0 0 auto;
+  }
+  .post-main {
+    flex: auto;
+
+    .edit-item {
+      display: flex;
+      align-items: center;
+
+      .edit-item-label {
+        flex: 1;
+        padding: 0 2rem;
+        font-weight: bold;
+      }
+      .edit-item-content {
+        flex: 1;
+        display: flex;
+        align-items: center;
+      }
+    }
+  }
+  .post-bottom {
+    flex: 0 0 auto;
+  }
+}
+
+.desktop {
+  width: 512px;
+  margin: 0 auto;
+}
+
+.mobile {
+  width: 100%;
+}
