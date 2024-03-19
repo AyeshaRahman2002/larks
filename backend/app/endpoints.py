@@ -5,16 +5,19 @@ from flask import request, jsonify, Blueprint, current_app
 from .models import Users
 from flask_jwt_extended import JWTManager, get_jwt_identity
 from flask_jwt_extended import create_access_token, jwt_required
+from flask_cors import cross_origin
+from datetime import datetime
+# from transformers import pipeline
 
 auth_bp = Blueprint('auth', __name__)
 
 # import individual project python files
-#from app.kevin.kevin import *  # noqa: F403, F401
+from app.kevin.kevin import *  # noqa: F403, F401
 from app.lanre.lanre import *  # noqa: F403, F401
-#from app.ramat.ramat import *  # noqa: F403, F401
+from app.ramat.ramat import *  # noqa: F403, F401
 #from app.shreyas.shreyas import *  # noqa: F403, F401
 from app.rootsRadar.rootsRadar import *  # noqa: F403, F401
-from app.EaseMind.EaseMind import * # noqa: F403, F401
+from app.AutismDetector.AutismDetector import *  # noqa: F403, F401
 
 # ---------------------------------------------------------------------------- #
 
@@ -97,4 +100,3 @@ def upload():
 @jwt_required()
 def verification():
     return {'user': get_jwt_identity()}
-

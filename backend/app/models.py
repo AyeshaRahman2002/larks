@@ -22,9 +22,9 @@ class Users(db.Model):
             raise AssertionError('Email address missing "@" symbol')
         # return email field and chain validate the password
         return email
-    
-    #relationship to EPersonalDetails. uselist=False to ensure one-to-one.
-    epersonal_details = relationship('EPersonalDetails', back_populates='user', uselist=False)
+
+    #relationship to PersonalDetails. uselist=False to ensure one-to-one.
+    personal_details = relationship('personaldetails', back_populates='user', uselist=False)
 
     @validates('password')
     def validate_password(self, key, password):
@@ -37,24 +37,25 @@ class RootRadarMVPTest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.String(500))
 
-# ---------------------------------------------------------------------------- #
-#Personal details for EaseMind
-class EPersonalDetails(db.Model):
-    __tablename__ = 'EPersonalDetails'
+# My backend integration
+
+class personaldetails(db.Model):
+    __tablename__ = 'personaldetails'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  # Reference to the Users table
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     firstName = db.Column(db.String(500))
     lastName = db.Column(db.String(500))
     DOB = db.Column(db.Date)
     gender = db.Column(db.String(50))
-    houseNumber = db.Column(db.String(100))
-    streetName = db.Column(db.String(500))
     postCode = db.Column(db.String(100))
     city = db.Column(db.String(500))
-    country = db.Column(db.String(500))
+    countryOfResidence = db.Column(db.String(500))
     highestEducation = db.Column(db.String(500))
-    user = relationship('Users', back_populates='epersonal_details', uselist=False)  # Ensure one-to-one relationship
+    ethnicity = db.Column(db.String(500))
+    nationality = db.Column(db.String(500))
+    sexuality = db.Column(db.String(50))
+    user = relationship('Users', back_populates='personal_details', uselist=False)
 
     @validates('DOB')
     def validate_DOB(self, key, DOB):
@@ -69,20 +70,31 @@ class EPersonalDetails(db.Model):
             raise AssertionError('You must be older than 18 to use this service.')
         
         return birth_date
-    
-#Anxiety test result for EaseMind
-class EATestResult(db.Model):
+
+class Note(db.Model):
+    __tablename__ = 'notes'  # Usually, table names are in plural form
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  # Ensure 'users' matches your User table name
+    note = db.Column(db.String, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    prediction = db.Column(db.Integer)
+    user = relationship('Users', backref='notes') 
+
+class AutismDetectorFeedback(db.Model):
+    __tablename__ = 'AutismDetectorFeedback'
+
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    score = db.Column(db.Integer, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-    user = relationship('Users', backref='test_results')
-
-#anxiety test questions for EaseMind
-class EAQuestion(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    text = db.Column(db.String(500))
-
-    def __repr__(self):
-        return f'<EAQuestion {self.text}>'
+    aq10 = db.Column(db.Integer, nullable=True)
+    aq = db.Column(db.Integer, nullable=True)
+    catqtotalScore = db.Column(db.Integer, nullable=True)
+    compensationScore = db.Column(db.Integer, nullable=True)
+    maskingScore = db.Column(db.Integer, nullable=True)
+    assimilationScore = db.Column(db.Integer, nullable=True)
+    raadsrScore = db.Column(db.Integer, nullable=True)
+    language = db.Column(db.Integer, nullable=True)
+    socialRelatedness = db.Column(db.Integer, nullable=True)
+    sensoryMotor = db.Column(db.Integer, nullable=True)
+    circumscribedInterests = db.Column(db.Integer, nullable=True)
+    user = relationship('Users', backref='feedback')
