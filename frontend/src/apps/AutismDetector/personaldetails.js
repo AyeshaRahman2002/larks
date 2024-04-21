@@ -18,7 +18,28 @@ function PersonalDetails() {
     ethnicity: '',
     nationality: '',
     sexuality: '',
+    additionalConditions: [],
+    sensorySensitivity: [],
   });
+
+  const handleConditionChange = (condition) => {
+    // eslint-disable-next-line no-restricted-globals
+    const selectedOptions = Array.from(event.target.selectedOptions).map((option) => option.value);
+    setUserDetails((prevState) => {
+      const isConditionSelected = prevState.additionalConditions.includes(condition);
+      if (isConditionSelected) {
+        return {
+          ...prevState,
+          additionalConditions: prevState.additionalConditions.filter((cond) => cond !== condition),
+        };
+      }
+      // This part is executed only if the condition is not selected, removing the need for an else statement
+      return {
+        ...prevState,
+        additionalConditions: selectedOptions,
+      };
+    });
+  };
 
   const goBackButtonStyle = {
     backgroundColor: '#f0f0f0',
@@ -37,7 +58,7 @@ function PersonalDetails() {
     width: '15%', // Adjust the width as needed, e.g., to 50% of its container
     height: '300px', // Keeps the aspect ratio of the image
     float: 'left',
-    marginTop: '-15vh',
+    marginTop: '-18vh',
     marginLeft: '-0%',
     position: 'relative',
     display: 'block', // This ensures the video is displayed as a block element, removing any unwanted space around it
@@ -69,7 +90,17 @@ function PersonalDetails() {
         if (!response.ok) {
           throw new Error('Failed to fetch details');
         }
-        const data = await response.json();
+        let data = await response.json();
+
+        // Ensure that `sensorySensitivity` and `additionalConditions` are arrays
+        // This is necessary to prevent runtime errors when their values are `undefined`
+        if (!Array.isArray(data.sensorySensitivity)) {
+          data = { ...data, sensorySensitivity: [] }; // Initialize as empty array if undefined
+        }
+        if (!Array.isArray(data.additionalConditions)) {
+          data = { ...data, additionalConditions: [] }; // Initialize as empty array if undefined
+        }
+
         setUserDetails(data);
       } catch (error) {
         setFetchError('Error fetching user details. Please try again.'); // Update to display error to user
@@ -77,7 +108,7 @@ function PersonalDetails() {
     };
 
     fetchUserDetails();
-  }, [token]);
+  }, [token]); // Depend on `token` to refetch when it changes
 
   const isAgeAbove18 = (dob) => {
     const birthDate = new Date(dob);
@@ -91,10 +122,31 @@ function PersonalDetails() {
   };
 
   const handleUserDetailsChange = (e) => {
-    const { name, value } = e.target;
-    setUserDetails((prevState) => ({ ...prevState, [name]: value }));
-    setFormValidationMessage('');
-    setAgeValidationMessage('');
+    const {
+      name, value, type, checked,
+    } = e.target;
+
+    if (type === 'checkbox') {
+      // Initialize as an empty array if it's not already an array
+      const currentSensitivities = userDetails.sensorySensitivity || [];
+
+      if (checked) {
+        // Add the value if checked
+        setUserDetails((prevState) => ({
+          ...prevState,
+          sensorySensitivity: [...currentSensitivities, value],
+        }));
+      } else {
+        // Remove the value if unchecked
+        setUserDetails((prevState) => ({
+          ...prevState,
+          sensorySensitivity: currentSensitivities.filter((sens) => sens !== value),
+        }));
+      }
+    } else {
+      // For other input types, just update the state as before
+      setUserDetails((prevState) => ({ ...prevState, [name]: value }));
+    }
   };
 
   const validateForm = () => {
@@ -301,6 +353,242 @@ function PersonalDetails() {
             <option value="Other">Other</option>
           </select>
         </label>
+
+        <div className="conditionsContainer">
+          <label htmlFor="handleConditionChange">Additional Conditions:</label>
+          <select
+            id="handleConditionChange"
+            name="handleConditionChange"
+            value={userDetails.additionalConditions}
+            onChange={handleConditionChange}
+            multiple // Allow multiple selections
+          >
+            <option value="Asperger Syndrome">Asperger Syndrome</option>
+            <option value="ADHD">ADHD</option>
+            <option value="Anxiety">Anxiety</option>
+            <option value="Depression">Depression</option>
+            <option value="Learning Disabilities">Learning Disabilities</option>
+            <option value="Bipolar Disorder">Bipolar Disorder</option>
+            <option value="OCD">OCD</option>
+            {/* Add more options as needed */}
+          </select>
+        </div>
+
+        <fieldset>
+          <legend style={{ fontSize: '16px', fontWeight: 'bold' }}>Sensory Sensitivities</legend>
+
+          <h4><u>Sight</u></h4>
+          <label className="sensory-label">
+            <input
+              type="checkbox"
+              name="sensorySensitivity"
+              value="Sight Under-Sensitive"
+              checked={userDetails.sensorySensitivity.includes('Sight Under-Sensitive')}
+              onChange={handleUserDetailsChange}
+            />
+            Sight Under-Sensitive (e.g., objects appear dark, poor depth perception)
+          </label>
+          <label className="sensory-label">
+            <input
+              type="checkbox"
+              name="sensorySensitivity"
+              value="Sight Over-Sensitive"
+              checked={userDetails.sensorySensitivity.includes('Sight Over-Sensitive')}
+              onChange={handleUserDetailsChange}
+            />
+            Sight Over-Sensitive (e.g., distorted vision, difficulty with bright lights)
+            <input
+              type="checkbox"
+              name="sensorySensitivity"
+              value="None"
+              checked={userDetails.sensorySensitivity.includes('Sight Under-Sensitive')}
+              onChange={handleUserDetailsChange}
+            />
+            None of the above
+          </label>
+
+          <h4><u>Sound</u></h4>
+          <label className="sensory-label">
+            <input
+              type="checkbox"
+              name="sensorySensitivity"
+              value="Sound Under-Sensitive"
+              checked={userDetails.sensorySensitivity.includes('Sound Under-Sensitive')}
+              onChange={handleUserDetailsChange}
+            />
+            Sound Under-Sensitive (e.g., partial hearing, enjoys noisy places)
+          </label>
+          <label className="sensory-label">
+            <input
+              type="checkbox"
+              name="sensorySensitivity"
+              value="Sound Over-Sensitive"
+              checked={userDetails.sensorySensitivity.includes('Sound Over-Sensitive')}
+              onChange={handleUserDetailsChange}
+            />
+            Sound Over-Sensitive (e.g., noise magnified, difficulty concentrating)
+            <input
+              type="checkbox"
+              name="sensorySensitivity"
+              value="None"
+              checked={userDetails.sensorySensitivity.includes('Sight Under-Sensitive')}
+              onChange={handleUserDetailsChange}
+            />
+            None of the above
+          </label>
+
+          <h4><u>Smell</u></h4>
+          <label className="sensory-label">
+            <input
+              type="checkbox"
+              name="sensorySensitivity"
+              value="Smell Under-Sensitive"
+              checked={userDetails.sensorySensitivity.includes('Smell Under-Sensitive')}
+              onChange={handleUserDetailsChange}
+            />
+            Smell Under-Sensitive (e.g., fails to notice extreme odours, may lick things)
+          </label>
+          <label className="sensory-label">
+            <input
+              type="checkbox"
+              name="sensorySensitivity"
+              value="Smell Over-Sensitive"
+              checked={userDetails.sensorySensitivity.includes('Smell Over-Sensitive')}
+              onChange={handleUserDetailsChange}
+            />
+            Smell Over-Sensitive (e.g., smells can be intense and overpowering)
+            <input
+              type="checkbox"
+              name="sensorySensitivity"
+              value="None"
+              checked={userDetails.sensorySensitivity.includes('Sight Under-Sensitive')}
+              onChange={handleUserDetailsChange}
+            />
+            None of the above
+          </label>
+
+          <h4><u>Taste</u></h4>
+          <label className="sensory-label">
+            <input
+              type="checkbox"
+              name="sensorySensitivity"
+              value="Taste Under-Sensitive"
+              checked={userDetails.sensorySensitivity.includes('Taste Under-Sensitive')}
+              onChange={handleUserDetailsChange}
+            />
+            Taste Under-Sensitive (e.g., likes very spicy foods, may eat non-edible items)
+          </label>
+          <label className="sensory-label">
+            <input
+              type="checkbox"
+              name="sensorySensitivity"
+              value="Taste Over-Sensitive"
+              checked={userDetails.sensorySensitivity.includes('Taste Over-Sensitive')}
+              onChange={handleUserDetailsChange}
+            />
+            Taste Over-Sensitive (e.g., finds some flavours too strong, restricted diet)
+            <input
+              type="checkbox"
+              name="sensorySensitivity"
+              value="None"
+              checked={userDetails.sensorySensitivity.includes('Sight Under-Sensitive')}
+              onChange={handleUserDetailsChange}
+            />
+            None of the above
+          </label>
+
+          <h4><u>Touch</u></h4>
+          <label className="sensory-label">
+            <input
+              type="checkbox"
+              name="sensorySensitivity"
+              value="Touch Under-Sensitive"
+              checked={userDetails.sensorySensitivity.includes('Touch Under-Sensitive')}
+              onChange={handleUserDetailsChange}
+            />
+            Touch Under-Sensitive (e.g., high pain threshold, enjoys heavy objects)
+          </label>
+          <label className="sensory-label">
+            <input
+              type="checkbox"
+              name="sensorySensitivity"
+              value="Touch Over-Sensitive"
+              checked={userDetails.sensorySensitivity.includes('Touch Over-Sensitive')}
+              onChange={handleUserDetailsChange}
+            />
+            Touch Over-Sensitive (e.g., touch can be painful, dislikes certain clothing textures)
+            <input
+              type="checkbox"
+              name="sensorySensitivity"
+              value="None"
+              checked={userDetails.sensorySensitivity.includes('Sight Under-Sensitive')}
+              onChange={handleUserDetailsChange}
+            />
+            None of the above
+          </label>
+
+          <h4><u>Balance (Vestibular)</u></h4>
+          <label className="sensory-label">
+            <input
+              type="checkbox"
+              name="sensorySensitivity"
+              value="Balance Under-Sensitive"
+              checked={userDetails.sensorySensitivity.includes('Balance Under-Sensitive')}
+              onChange={handleUserDetailsChange}
+            />
+            Balance Under-Sensitive (e.g., needs to rock, swing, or spin)
+          </label>
+          <label className="sensory-label">
+            <input
+              type="checkbox"
+              name="sensorySensitivity"
+              value="Balance Over-Sensitive"
+              checked={userDetails.sensorySensitivity.includes('Balance Over-Sensitive')}
+              onChange={handleUserDetailsChange}
+            />
+            Balance Over-Sensitive (e.g., difficulties with sport, car sickness)
+            <input
+              type="checkbox"
+              name="sensorySensitivity"
+              value="None"
+              checked={userDetails.sensorySensitivity.includes('Sight Under-Sensitive')}
+              onChange={handleUserDetailsChange}
+            />
+            None of the above
+          </label>
+
+          <h4><u>Body Awareness (Proprioception)</u></h4>
+          <label className="sensory-label">
+            <input
+              type="checkbox"
+              name="sensorySensitivity"
+              value="Body Awareness Under-Sensitive"
+              checked={userDetails.sensorySensitivity.includes('Body Awareness Under-Sensitive')}
+              onChange={handleUserDetailsChange}
+            />
+            Body Awareness Under-Sensitive (e.g., stands too close, may bump into people)
+          </label>
+          <label className="sensory-label">
+            <input
+              type="checkbox"
+              name="sensorySensitivity"
+              value="Body Awareness Over-Sensitive"
+              checked={userDetails.sensorySensitivity.includes('Body Awareness Over-Sensitive')}
+              onChange={handleUserDetailsChange}
+            />
+            Body Awareness Over-Sensitive (e.g., difficulties with fine motor skills)
+            <input
+              type="checkbox"
+              name="sensorySensitivity"
+              value="None"
+              checked={userDetails.sensorySensitivity.includes('Sight Under-Sensitive')}
+              onChange={handleUserDetailsChange}
+            />
+            None of the above
+          </label>
+        </fieldset>
+        {/* https://www.autism.org.uk/advice-and-guidance/topics/sensory-differences/sensory-differences/all-audiences */}
+
         {/* Submit button */}
         <div>
           <button type="submit" className="AutismDetectorButton">Save Details</button>

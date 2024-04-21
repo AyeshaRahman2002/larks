@@ -8,8 +8,9 @@ const BASEURL = process.env.NODE_ENV === 'development'
   ? process.env.REACT_APP_DEV
   : process.env.REACT_APP_PROD;
 
-function autismspectrumquotient() {
+function Autismspectrumquotient() {
   const [answers, setAnswers] = useState({});
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0); // New state for tracking current question index
   const [testResult, setTestResult] = useState({ score: null, resultMessage: null });
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
@@ -280,6 +281,11 @@ function autismspectrumquotient() {
     setAnswers({ ...answers, [id]: valueMapping[value] || null });
   };
 
+  const handleCloseModal = () => {
+    setShowModal(false); // Close the modal
+    navigate('/autism_instructions/questionnairetype'); // Navigate back to the specified path
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -323,7 +329,7 @@ function autismspectrumquotient() {
     }
   };
 
-  const handleGoBack = () => navigate(-1);
+  // const handleGoBack = () => navigate(-1);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -339,21 +345,46 @@ function autismspectrumquotient() {
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <button type="button" className="go-back-button" onClick={handleGoBack}>&larr; Go Back</button>
-        {questionnaires['Autism Spectrum Quotient'].map((question, index) => (
-          <div key={question.id} className={index % 2 === 0 ? 'question-container' : 'question-container-lightgreen'}>
-            <label htmlFor={`question-${question.id}`} className="question-label">
-              {question.text}
-            </label>
-            <select id={`question-${question.id}`} className="question-select" onChange={(e) => handleChange(question.id, e.target.value)}>
-              <option value="">Select an option</option>
-              {question.options.map((option) => (
-                <option key={option} value={option}>{option}</option>
-              ))}
-            </select>
-          </div>
-        ))}
-        <button type="submit" className="submit-button">Submit</button>
+        <button type="button" className="go-back-button" onClick={() => navigate(-1)}>
+          &larr; Go Back
+        </button>
+
+        <div
+          key={questionnaires['Autism Spectrum Quotient'][currentQuestionIndex].id}
+          className={currentQuestionIndex % 2 === 0 ? 'question-container' : 'question-container-lightgreen'}
+        >
+          <label
+            htmlFor={`question-${questionnaires['Autism Spectrum Quotient'][currentQuestionIndex].id}`}
+            className="question-label"
+          >
+            {questionnaires['Autism Spectrum Quotient'][currentQuestionIndex].text}
+          </label>
+          <select
+            id={`question-${questionnaires['Autism Spectrum Quotient'][currentQuestionIndex].id}`}
+            className="question-select"
+            onChange={(e) => handleChange(questionnaires['Autism Spectrum Quotient'][currentQuestionIndex].id, e.target.value)}
+          >
+            <option value="">Select an option</option>
+            {questionnaires['Autism Spectrum Quotient'][currentQuestionIndex].options.map((option) => (
+              <option key={option} value={option}>{option}</option>
+            ))}
+          </select>
+        </div>
+
+        {currentQuestionIndex > 0 && (
+          <button type="button" onClick={() => setCurrentQuestionIndex(currentQuestionIndex - 1)}>
+            Previous
+          </button>
+        )}
+        {currentQuestionIndex < questionnaires['Autism Spectrum Quotient'].length - 1 ? (
+          <button type="button" onClick={() => setCurrentQuestionIndex(currentQuestionIndex + 1)}>
+            Next
+          </button>
+        ) : (
+          <button type="submit" className="submit-button">
+            Submit
+          </button>
+        )}
       </form>
 
       {showModal && (
@@ -362,15 +393,13 @@ function autismspectrumquotient() {
             <button
               type="button"
               className="close"
-              onClick={() => setShowModal(false)}
+              onClick={handleCloseModal}
               aria-label="Close modal"
             >
               &times;
             </button>
-            {/* Header */}
             <h2 className="test-completion-header">You have completed the Second test!</h2>
             <br />
-            {/* Additional instruction */}
             <p>Please finish the next two tests for better evaluation results.</p>
             <p>{testResult.resultMessage}</p>
           </div>
@@ -380,4 +409,4 @@ function autismspectrumquotient() {
   );
 }
 
-export default autismspectrumquotient;
+export default Autismspectrumquotient;

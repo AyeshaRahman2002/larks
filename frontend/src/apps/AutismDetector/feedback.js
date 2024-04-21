@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import jsPDF from 'jspdf';
+import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import { Bar } from 'react-chartjs-2';
 import {
@@ -20,6 +20,75 @@ const BASEURL = process.env.NODE_ENV === 'development'
 function Feedback() {
   const { token } = useContext(AuthTokenContext);
   const [feedback, setFeedback] = useState([]);
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState({});
+  const [isAQFeedbackOpen, setIsAQFeedbackOpen] = useState({});
+
+  const toggleFeedback = (id) => {
+    setIsFeedbackOpen((prevState) => ({
+      ...prevState,
+      [id]: !prevState[id],
+    }));
+  };
+
+  const toggleAQFeedback = (id) => {
+    setIsAQFeedbackOpen((prevState) => ({
+      ...prevState,
+      [id]: !prevState[id],
+    }));
+  };
+
+  const getComprehensiveFeedback = (user) => {
+    const {
+      aq, aq10, catqtotalScore, raadsrScore,
+    } = user;
+
+    const feedbackMessages = [];
+
+    feedbackMessages.push(<h2 key="analysis-header">Comprehensive Analysis of Your Results:</h2>);
+
+    feedbackMessages.push(<h3 key="aq-aq10-header">Autism Spectrum Quotient (AQ) and AQ-10 Analysis:</h3>);
+    if (aq >= 32 && aq10 >= 6) {
+      feedbackMessages.push(<p key="aq-aq10-high">Your scores on both AQ and AQ-10 are significantly above the typical threshold, which strongly suggests the presence of autistic traits. It&apos;s advisable to consult with a healthcare professional for a formal assessment, as this can provide a more definitive understanding and access to support services.</p>);
+    } else if (aq < 26 && aq10 < 6) {
+      feedbackMessages.push(<p key="aq-aq10-low">Your scores indicate fewer autistic traits, falling below the common thresholds. If you have concerns about autism despite these results, personal experiences and other behaviors not captured by these tests could still warrant a professional consultation.</p>);
+    } else {
+      feedbackMessages.push(<p key="aq-aq10-discrepancy">There&apos;s an inconsistency between your AQ and AQ-10 scores, suggesting that further detailed evaluation might be helpful. Different contexts or interpretations of questions could result in these variations. A professional can offer insights into these discrepancies.</p>);
+    }
+
+    feedbackMessages.push(<h3 key="catq-header">Camouflaging Autistic Traits Questionnaire (CAT-Q) Interpretation:</h3>);
+    if (catqtotalScore >= 100) {
+      feedbackMessages.push(<p key="catq-high">Your CAT-Q score indicates significant camouflaging of autistic traits. While camouflaging might help in some social situations, it can also lead to increased stress and burnout. Recognizing and understanding your camouflaging behaviors can be a first step towards finding strategies that reduce the need to camouflage, enhancing your well-being.</p>);
+    } else {
+      feedbackMessages.push(<p key="catq-low">A lower CAT-Q score suggests less frequent camouflaging of autistic traits. This can reduce stress associated with social interactions but may also impact social integration. Finding a balance that respects your needs and minimizes stress is crucial.</p>);
+    }
+
+    feedbackMessages.push(<h3 key="raadsr-header">Ritvo Autism Asperger Diagnostic Scale-Revised (RAADS-R) Analysis:</h3>);
+    if (raadsrScore >= 65) {
+      feedbackMessages.push(<p key="raadsr-high">Your RAADS-R score suggests autistic traits with a level of detail across various domains, including language, social relatedness, sensory-motor, and circumscribed interests. These insights, alongside scores from other questionnaires, might prompt a deeper exploration into how these traits impact your life and ways to support your needs.</p>);
+    } else {
+      feedbackMessages.push(<p key="raadsr-low">A RAADS-R score below the common threshold for autism spectrum conditions suggests fewer autistic traits. However, this doesn&apos;t invalidate any challenges you face. Personal experiences are paramount, and seeking professional advice can provide tailored support.</p>);
+    }
+
+    feedbackMessages.push(<h3 key="personalized-suggestions">Personalized Suggestions:</h3>);
+    if (aq >= 32 && aq10 >= 6 && catqtotalScore >= 100 && raadsrScore >= 65) {
+      feedbackMessages.push(<p key="high-likelihood-asd">The consistency in your results across all tests suggests a high likelihood of ASD. Engaging with autism spectrum communities and seeking a formal diagnosis could offer both personal insights and practical support. A diagnosis can be a gateway to understanding your unique strengths and challenges, and how to navigate them.</p>);
+    } else if (aq < 26 && aq10 < 6 && catqtotalScore < 100 && raadsrScore < 65) {
+      feedbackMessages.push(<p key="lower-likelihood-asd">Your results suggest a lower likelihood of ASD, but if there are discrepancies in how you feel or behave that led you to take these assessments, it’s still worth discussing with a professional. There are many aspects of neurodiversity, and a thorough evaluation can provide clarity.</p>);
+    } else {
+      feedbackMessages.push(<p key="mixed-results">Your scores present a mixed picture, which is not uncommon. Many people have traits that align with autism spectrum conditions to varying degrees. Exploring these traits further with a professional can help you understand your unique profile, including strengths and areas where you may benefit from support.</p>);
+    }
+
+    feedbackMessages.push(
+      <p key="next-steps">
+        <strong>
+          Next Steps:
+        </strong>
+        Consider these insights as a starting point for further exploration. Whether through professional evaluation, self-exploration, or connecting with communities, understanding your neurodiverse traits can lead to a more fulfilling life.
+      </p>,
+    );
+
+    return feedbackMessages;
+  };
 
   const fetchFeedback = async () => {
     await axios.get(`${BASEURL}api/feedback`, {
@@ -44,6 +113,7 @@ function Feedback() {
     const input = document.getElementById('feedback-section'); // Targeting the feedback container
     html2canvas(input).then((canvas) => {
       const imgData = canvas.toDataURL('image/png');
+      // eslint-disable-next-line new-cap
       const pdf = new jsPDF({
         orientation: 'portrait',
       });
@@ -643,35 +713,102 @@ function Feedback() {
                   {item.sexuality}
                 </p>
               </div>
+              {/* Comprehensive feedback section */}
               <div style={feedbackBoxStyle}>
-                {/* Add other user details here */}
-                <p>
+                <h2>Comprehensive Feedback</h2>
+                <p>{getComprehensiveFeedback(item)}</p>
+              </div>
+              <div style={feedbackBoxStyle}>
+                {/* Keep the title always visible and make it clickable to toggle the visibility of the feedback */}
+                <button
+                  type="button"
+                  onClick={() => toggleFeedback(item.id)}
+                  onKeyPress={(e) => e.key === 'Enter' && toggleFeedback(item.id)}
+                  style={{
+                    cursor: 'pointer',
+                    background: 'none',
+                    border: 'none',
+                    padding: '10px 0', // Adjusted for visual balance
+                    font: 'inherit',
+                    color: 'inherit',
+                    textAlign: 'center', // Align text to the left
+                    width: '100%',
+                    alignItems: 'center', // Center items vertically
+                    marginLeft: '44%',
+                    display: 'flex',
+                  }}
+                >
                   <strong>
                     AQ10 Score:
+                    {item.aq10}
                   </strong>
-                  {item.aq10}
-                </p>
-                <p>
-                  <strong>
-                    Feedback:
-                  </strong>
-                  {getAQ10Feedback(item.aq10)}
-                </p>
+                  {/* Use a span for the arrow, changing its direction based on the section's open/closed state */}
+                  <span
+                    style={{
+                      transition: 'transform 0.2s ease',
+                      transform: isFeedbackOpen[item.id] ? 'rotate(180deg)' : 'rotate(0deg)', // Ensuring the condition is applied correctly
+                    }}
+                  >
+                    ▼
+                    {/* This arrow rotates based on the section state */}
+                  </span>
+                </button>
+                {/* Conditionally render the feedback based on the item's collapsible state */}
+                {isFeedbackOpen[item.id] && (
+                  <p>
+                    <strong>
+                      Feedback:
+                    </strong>
+                    {getAQ10Feedback(item.aq10)}
+                  </p>
+                )}
               </div>
+
               <div style={feedbackBoxStyle}>
-                <p>
+                {/* Button to toggle visibility of Autism Spectrum Quotient Score feedback */}
+                <button
+                  type="button"
+                  onClick={() => toggleAQFeedback(item.id)} // Assuming toggleAQFeedback is your state toggle function
+                  onKeyPress={(e) => e.key === 'Enter' && toggleAQFeedback(item.id)}
+                  style={{
+                    cursor: 'pointer',
+                    background: 'none',
+                    border: 'none',
+                    padding: '10px 0',
+                    font: 'inherit',
+                    color: 'inherit',
+                    textAlign: 'center',
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'center', // Center content
+                    alignItems: 'center',
+                  }}
+                >
                   <strong>
                     Autism Spectrum Quotient Score:
+                    {item.aq}
                   </strong>
-                  {item.aq}
-                </p>
-                <p>
-                  <strong>
-                    Feedback:
-                  </strong>
-                  {getAQFeedback(item.aq)}
-                </p>
+                  <span
+                    style={{
+                      transition: 'transform 0.2s ease',
+                      transform: isAQFeedbackOpen[item.id] ? 'rotate(180deg)' : 'rotate(0deg)',
+                      marginLeft: '10px', // Add space between text and arrow
+                    }}
+                  >
+                    ▼
+                  </span>
+                </button>
+                {/* Conditionally render the AQ feedback */}
+                {isAQFeedbackOpen[item.id] && (
+                  <p>
+                    <strong>
+                      Feedback:
+                    </strong>
+                    {getAQFeedback(item.aq)}
+                  </p>
+                )}
               </div>
+
               <div style={feedbackBoxStyle}>
                 <div style={{ height: '400px', width: '100%', marginTop: '20px' }}>
                   <Bar data={aqchartData} options={options} />
@@ -686,38 +823,78 @@ function Feedback() {
                   </p>
                 </div>
               </div>
+
               <div style={feedbackBoxStyle}>
-                <p>
+                {/* Toggle button for CAT-Q details and feedback */}
+                <button
+                  type="button"
+                  onClick={() => toggleFeedback(item.id, 'CATQ')} // Adjust function to handle CAT-Q toggling
+                  onKeyPress={(e) => e.key === 'Enter' && toggleFeedback(item.id, 'CATQ')} // Ensures accessibility
+                  style={{
+                    cursor: 'pointer',
+                    background: 'none',
+                    border: 'none',
+                    padding: '10px 0',
+                    font: 'inherit',
+                    color: 'inherit',
+                    textAlign: 'center', // Center align text and arrow
+                    width: '100%',
+                    justifyContent: 'center', // Center items horizontally
+                    alignItems: 'center', // Center items vertically
+                    display: 'flex', // Use flexbox for layout
+                  }}
+                >
                   <strong>
-                    Cat-Q Total Score:
+                    Cat-Q Details and Feedback
                   </strong>
-                  {item.catqtotalScore}
-                </p>
-                <p>
-                  <strong>
-                    Cat-Q Compensation Score:
-                  </strong>
-                  {item.compensationScore}
-                </p>
-                <p>
-                  <strong>
-                    Cat-Q Masking Score:
-                  </strong>
-                  {item.maskingScore}
-                </p>
-                <p>
-                  <strong>
-                    Cat-Q Assimilation Score:
-                  </strong>
-                  {item.assimilationScore}
-                </p>
-                <p>
-                  <strong>
-                    CAT-Q Feedback:
-                  </strong>
-                  {getCATQFeedback(item.catqtotalScore, item.compensationScore, item.maskingScore, item.assimilationScore)}
-                </p>
+                  <span
+                    style={{
+                      transition: 'transform 0.2s ease',
+                      transform: isFeedbackOpen[item.id] ? 'rotate(180deg)' : 'rotate(0deg)', // Rotate arrow based on state
+                      marginLeft: '10px', // Add some space between text and arrow
+                    }}
+                  >
+                    ▼
+                    {/* Arrow symbol */}
+                  </span>
+                </button>
+                {/* Conditionally render the CAT-Q scores and feedback */}
+                {isFeedbackOpen[item.id] && (
+                  <>
+                    <p>
+                      <strong>
+                        Cat-Q Total Score:
+                      </strong>
+                      {item.catqtotalScore}
+                    </p>
+                    <p>
+                      <strong>
+                        Cat-Q Compensation Score:
+                      </strong>
+                      {item.compensationScore}
+                    </p>
+                    <p>
+                      <strong>
+                        Cat-Q Masking Score:
+                      </strong>
+                      {item.maskingScore}
+                    </p>
+                    <p>
+                      <strong>
+                        Cat-Q Assimilation Score:
+                      </strong>
+                      {item.assimilationScore}
+                    </p>
+                    <p>
+                      <strong>
+                        CAT-Q Feedback:
+                      </strong>
+                      {getCATQFeedback(item.catqtotalScore, item.compensationScore, item.maskingScore, item.assimilationScore)}
+                    </p>
+                  </>
+                )}
               </div>
+
               <div style={feedbackBoxStyle}>
                 <div style={{ height: '400px', width: '100%', marginTop: '20px' }}>
                   <Bar data={catqchartData} options={catqoptions} />
@@ -750,44 +927,84 @@ function Feedback() {
                   </p>
                 </div>
               </div>
+
               <div style={feedbackBoxStyle}>
-                <p>
+                {/* Toggle button for RAADS-R details and feedback */}
+                <button
+                  type="button"
+                  onClick={() => toggleFeedback(item.id, 'RAADSR')} // Adjust function to handle RAADS-R toggling
+                  onKeyPress={(e) => e.key === 'Enter' && toggleFeedback(item.id, 'RAADSR')} // Ensures accessibility
+                  style={{
+                    cursor: 'pointer',
+                    background: 'none',
+                    border: 'none',
+                    padding: '10px 0',
+                    font: 'inherit',
+                    color: 'inherit',
+                    textAlign: 'center', // Center align text and arrow
+                    width: '100%',
+                    justifyContent: 'center', // Center items horizontally
+                    alignItems: 'center', // Center items vertically
+                    display: 'flex', // Use flexbox for layout
+                  }}
+                >
                   <strong>
-                    RAADS-R Total Score:
+                    RAADS-R Details and Feedback
                   </strong>
-                  {item.raadsrScore}
-                </p>
-                <p>
-                  <strong>
-                    RAADS-R Language Score:
-                  </strong>
-                  {item.language}
-                </p>
-                <p>
-                  <strong>
-                    RAADS-R Social Relatedness Score:
-                  </strong>
-                  {item.socialRelatedness}
-                </p>
-                <p>
-                  <strong>
-                    RAADS-R Sensory Motor Score:
-                  </strong>
-                  {item.sensoryMotor}
-                </p>
-                <p>
-                  <strong>
-                    RAADS-R Circumscribed Interests Score:
-                  </strong>
-                  {item.circumscribedInterests}
-                </p>
-                <p>
-                  <strong>
-                    RAADS-R Feedback:
-                  </strong>
-                  {getRAADSRFeedback(item.raadsrScore, item.language, item.socialRelatedness, item.sensoryMotor, item.circumscribedInterests)}
-                </p>
+                  <span
+                    style={{
+                      transition: 'transform 0.2s ease',
+                      transform: isFeedbackOpen[item.id] ? 'rotate(180deg)' : 'rotate(0deg)', // Rotate arrow based on state
+                      marginLeft: '10px', // Add some space between text and arrow
+                    }}
+                  >
+                    ▼
+                    {/* Arrow symbol */}
+                  </span>
+                </button>
+                {/* Conditionally render the RAADS-R scores and feedback */}
+                {isFeedbackOpen[item.id] && (
+                  <>
+                    <p>
+                      <strong>
+                        RAADS-R Total Score:
+                      </strong>
+                      {item.raadsrScore}
+                    </p>
+                    <p>
+                      <strong>
+                        RAADS-R Language Score:
+                      </strong>
+                      {item.language}
+                    </p>
+                    <p>
+                      <strong>
+                        RAADS-R Social Relatedness Score:
+                      </strong>
+                      {item.socialRelatedness}
+                    </p>
+                    <p>
+                      <strong>
+                        RAADS-R Sensory Motor Score:
+                      </strong>
+                      {item.sensoryMotor}
+                    </p>
+                    <p>
+                      <strong>
+                        RAADS-R Circumscribed Interests Score:
+                      </strong>
+                      {item.circumscribedInterests}
+                    </p>
+                    <p>
+                      <strong>
+                        RAADS-R Feedback:
+                      </strong>
+                      {getRAADSRFeedback(item.raadsrScore, item.language, item.socialRelatedness, item.sensoryMotor, item.circumscribedInterests)}
+                    </p>
+                  </>
+                )}
               </div>
+
               <div style={feedbackBoxStyle}>
                 <div style={{ height: '400px', width: '100%', marginTop: '20px' }}>
                   <Bar data={raadsrchartData} options={raadsroptions} />

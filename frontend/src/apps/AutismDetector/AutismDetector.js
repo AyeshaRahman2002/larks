@@ -356,6 +356,7 @@ function AutismDetector() {
       <div style={taskbarStyle}>
         <div>
           <Link to="/autism_instructions/personaldetails" style={taskbarItemStyle} className="taskbar-link">Personal Details</Link>
+          <Link to="/autism_instructions/eyeTracking" style={taskbarItemStyle} className="taskbar-link">Eye Tracking</Link>
           <Link to="/autism_instructions/test" style={taskbarItemStyle} className="taskbar-link">Test</Link>
           <Link to="/autism_instructions/feedback" style={taskbarItemStyle} className="taskbar-link">Feedback</Link>
           <Link to="/autism_instructions/trackingandnotes" style={taskbarItemStyle} className="taskbar-link">Tracking & Notes</Link>

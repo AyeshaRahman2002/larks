@@ -10,6 +10,7 @@ const BASEURL = process.env.NODE_ENV === 'development'
 
 function catq() {
   const [answers, setAnswers] = useState({});
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0); // For showing one question at a time
   const [testResult, setTestResult] = useState({ score: null, resultMessage: null });
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
@@ -145,6 +146,11 @@ function catq() {
     ],
   };
 
+  const handleCloseModalAndNavigate = () => {
+    setShowModal(false);
+    navigate('/autism_instructions/questionnairetype'); // Navigate to the desired URL on modal close
+  };
+
   const handleChange = (id, value) => {
     const normalScoring = {
       'Strongly Disagree': 1,
@@ -235,7 +241,7 @@ function catq() {
     }
   };
 
-  const handleGoBack = () => navigate(-1);
+  // const handleGoBack = () => navigate(-1);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -251,39 +257,48 @@ function catq() {
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <button type="button" className="go-back-button" onClick={handleGoBack}>&larr; Go Back</button>
-        {questionnaires['CAT-Q'].map((question, index) => (
-          <div key={question.id} className={index % 2 === 0 ? 'question-container' : 'question-container-lightgreen'}>
-            <label htmlFor={`question-${question.id}`} className="question-label">
-              {question.text}
-            </label>
-            <select id={`question-${question.id}`} className="question-select" onChange={(e) => handleChange(question.id, e.target.value)}>
-              <option value="">Select an option</option>
-              {question.options.map((option) => (
-                <option key={option} value={option}>{option}</option>
-              ))}
-            </select>
-          </div>
-        ))}
-        <button type="submit" className="submit-button">Submit</button>
+        <button type="button" className="go-back-button" onClick={() => navigate(-1)}>&larr; Go Back</button>
+
+        {/* Render the question based on currentQuestionIndex */}
+        <div className={currentQuestionIndex % 2 === 0 ? 'question-container' : 'question-container-lightgreen'}>
+          <label htmlFor={`question-${questionnaires['CAT-Q'][currentQuestionIndex].id}`} className="question-label">
+            {questionnaires['CAT-Q'][currentQuestionIndex].text}
+          </label>
+          <select
+            id={`question-${questionnaires['CAT-Q'][currentQuestionIndex].id}`}
+            className="question-select"
+            onChange={(e) => handleChange(questionnaires['CAT-Q'][currentQuestionIndex].id, e.target.value)}
+          >
+            <option value="">Select an option</option>
+            {questionnaires['CAT-Q'][currentQuestionIndex].options.map((option) => (
+              <option key={option} value={option}>{option}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Navigation buttons */}
+        {currentQuestionIndex > 0 && (
+          <button type="button" onClick={() => setCurrentQuestionIndex(currentQuestionIndex - 1)}>Previous</button>
+        )}
+        {currentQuestionIndex < questionnaires['CAT-Q'].length - 1 ? (
+          <button type="button" onClick={() => setCurrentQuestionIndex(currentQuestionIndex + 1)}>Next</button>
+        ) : (
+          <button type="submit" className="submit-button">Submit</button>
+        )}
       </form>
 
       {showModal && (
         <div className="modal">
-          <div className="modal-content" style={{ border: '2px solid darkgreen' }}>
+          <div className="modal-content">
             <button
               type="button"
               className="close"
-              onClick={() => setShowModal(false)}
+              onClick={handleCloseModalAndNavigate}
               aria-label="Close modal"
             >
               &times;
             </button>
-            {/* Header */}
-            <h2 className="test-completion-header">You have completed the Third test!</h2>
-            <br />
-            {/* Additional instruction */}
-            <p>Please finish the next one test for better evaluation results.</p>
+            <h2 className="test-completion-header">Test Completed</h2>
             <p>{testResult.resultMessage}</p>
           </div>
         </div>

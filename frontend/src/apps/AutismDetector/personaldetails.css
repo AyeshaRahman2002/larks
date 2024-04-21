@@ -12,6 +12,7 @@
   background-color: #F5D0AF; /* Light green background */
   padding: 20px; /* Padding inside the container */
   margin-top: 20px; /* Space above the form container */
+  margin-bottom: 20px; /* Space below each label */
   margin-left: auto; /* Center horizontally */
   margin-right: auto; /* Center horizontally */
   display: flex;
@@ -33,9 +34,10 @@
 .detailsFormContainer input,
 .detailsFormContainer select,
 .AutismDetectorButton {
-  width: 20%; /* Full width to fill the container */
+  width: 60%; /* Adjusted width for better form appearance */
   padding: 8px; /* Padding for better touch */
-  margin-top: 5px; /* Space above inputs/selects */
+  margin: 5px auto; /* Center elements and add space above */
+  display: block; /* Ensure elements are block-level for correct alignment */
 }
 
 .AutismDetectorButton {
@@ -49,5 +51,15 @@
 }
 
 .AutismDetectorButton:hover {
-  background-color: #013220; /* Darker green on hover */
+  background-color: #C68B77; /* Darker green on hover */
+}
+
+.sensory-label {
+  display: block; /* Makes each label take up its own line, stacking them vertically */
+  text-align: center; /* Centers the text of the label */
+  margin: 10px auto; /* Adds some space between each label and centers it horizontally */
+}
+
+.sensory-label input[type="checkbox"] {
+  margin-right: 10px; /* Adds some spacing between the checkbox and its label text */
 }

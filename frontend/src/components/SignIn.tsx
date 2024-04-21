@@ -63,7 +63,10 @@ function SignIn() {
     setIsFilled(true);
     try {
       const response = await axios.post(`${BASEURL}login`, JSON.stringify({ credentials: { email, password } }), {
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': '*',
+        },
         timeout: 5000,
       });
 

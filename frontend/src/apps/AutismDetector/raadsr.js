@@ -10,10 +10,16 @@ const BASEURL = process.env.NODE_ENV === 'development'
 
 function raadsR() {
   const [answers, setAnswers] = useState({});
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0); // Track the current question
   const [testResult, setTestResult] = useState({ score: null, resultMessage: null });
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
   const { token } = useContext(AuthTokenContext);
+
+  const handleCloseModalAndNavigate = () => {
+    setShowModal(false);
+    navigate('/autism_instructions/questionnairetype');
+  };
 
   const questionnaires = {
     'RAADS-R': [
@@ -544,8 +550,6 @@ function raadsR() {
     }
   };
 
-  const handleGoBack = () => navigate(-1);
-
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') {
@@ -560,13 +564,19 @@ function raadsR() {
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <button type="button" className="go-back-button" onClick={handleGoBack}>&larr; Go Back</button>
-        {questionnaires['RAADS-R'].map((question, index) => (
-          <div key={question.id} className={index % 2 === 0 ? 'question-container' : 'question-container-lightgreen'}>
+        <button type="button" className="go-back-button" onClick={() => navigate(-1)}>&larr; Go Back</button>
+
+        {/* Render only the current question */}
+        {questionnaires['RAADS-R'].slice(currentQuestionIndex, currentQuestionIndex + 1).map((question) => (
+          <div key={question.id} className={currentQuestionIndex % 2 === 0 ? 'question-container' : 'question-container-lightgreen'}>
             <label htmlFor={`question-${question.id}`} className="question-label">
               {question.text}
             </label>
-            <select id={`question-${question.id}`} className="question-select" onChange={(e) => handleChange(question.id, e.target.value)}>
+            <select
+              id={`question-${question.id}`}
+              className="question-select"
+              onChange={(e) => handleChange(question.id, e.target.value)}
+            >
               <option value="">Select an option</option>
               {question.options.map((option) => (
                 <option key={option} value={option}>{option}</option>
@@ -574,25 +584,31 @@ function raadsR() {
             </select>
           </div>
         ))}
-        <button type="submit" className="submit-button">Submit</button>
+
+        <div className="navigation-buttons">
+          {currentQuestionIndex > 0 && (
+            <button type="button" onClick={() => setCurrentQuestionIndex(currentQuestionIndex - 1)}>Previous</button>
+          )}
+          {currentQuestionIndex < questionnaires['RAADS-R'].length - 1 ? (
+            <button type="button" onClick={() => setCurrentQuestionIndex(currentQuestionIndex + 1)}>Next</button>
+          ) : (
+            <button type="submit" className="submit-button">Submit</button>
+          )}
+        </div>
       </form>
 
       {showModal && (
         <div className="modal">
-          <div className="modal-content" style={{ border: '2px solid darkgreen' }}>
+          <div className="modal-content">
             <button
               type="button"
               className="close"
-              onClick={() => setShowModal(false)}
+              onClick={handleCloseModalAndNavigate}
               aria-label="Close modal"
             >
               &times;
             </button>
-            {/* Header */}
-            <h2 className="test-completion-header">You have completed the Fourth test!</h2>
-            <br />
-            {/* Additional instruction */}
-            <p>Please make sure you have finished the previous three tests for better evaluation results.</p>
+            <h2 className="test-completion-header">You have completed the test!</h2>
             <p>{testResult.resultMessage}</p>
           </div>
         </div>

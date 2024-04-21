@@ -10,6 +10,7 @@ const BASEURL = process.env.NODE_ENV === 'development'
 
 function AQ10() {
   const [answers, setAnswers] = useState({});
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0); // Track the current question
   const [testResult, setTestResult] = useState({ score: null, resultMessage: null });
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
@@ -80,6 +81,20 @@ function AQ10() {
     setAnswers({ ...answers, [id]: valueMapping[value] || null });
   };
 
+  // Navigate to next question
+  const handleNext = () => {
+    if (currentQuestionIndex < questionnaires['AQ-10'].length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+    }
+  };
+
+  // Navigate to previous question
+  const handlePrev = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
+    }
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -115,7 +130,11 @@ function AQ10() {
     }
   };
 
-  const handleGoBack = () => navigate(-1);
+  // Function to handle closing the modal and navigating back
+  const handleCloseModal = () => {
+    setShowModal(false); // First, close the modal
+    navigate('/autism_instructions/questionnairetype'); // Then, navigate back to the specified path
+  };
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -131,21 +150,29 @@ function AQ10() {
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <button type="button" className="go-back-button" onClick={handleGoBack}>&larr; Go Back</button>
-        {questionnaires['AQ-10'].map((question, index) => (
-          <div key={question.id} className={index % 2 === 0 ? 'question-container' : 'question-container-lightgreen'}>
-            <label htmlFor={`question-${question.id}`} className="question-label">
-              {question.text}
-            </label>
-            <select id={`question-${question.id}`} className="question-select" onChange={(e) => handleChange(question.id, e.target.value)}>
-              <option value="">Select an option</option>
-              {question.options.map((option) => (
-                <option key={option} value={option}>{option}</option>
-              ))}
-            </select>
-          </div>
-        ))}
-        <button type="submit" className="submit-button">Submit</button>
+        <button type="button" className="go-back-button" onClick={() => navigate(-1)}>&larr; Go Back</button>
+        {/* Render the current question based on currentQuestionIndex */}
+        <div className={currentQuestionIndex % 2 === 0 ? 'question-container' : 'question-container-lightgreen'}>
+          <label htmlFor={`question-${questionnaires['AQ-10'][currentQuestionIndex].id}`} className="question-label">
+            {questionnaires['AQ-10'][currentQuestionIndex].text}
+          </label>
+          <select
+            id={`question-${questionnaires['AQ-10'][currentQuestionIndex].id}`}
+            className="question-select"
+            onChange={(e) => handleChange(questionnaires['AQ-10'][currentQuestionIndex].id, e.target.value)}
+          >
+            <option value="">Select an option</option>
+            {questionnaires['AQ-10'][currentQuestionIndex].options.map((option) => (
+              <option key={option} value={option}>{option}</option>
+            ))}
+          </select>
+        </div>
+        <button type="button" onClick={handlePrev} disabled={currentQuestionIndex === 0}>Previous</button>
+        {currentQuestionIndex < questionnaires['AQ-10'].length - 1 ? (
+          <button type="button" onClick={handleNext}>Next</button>
+        ) : (
+          <button type="submit" className="submit-button">Submit</button>
+        )}
       </form>
 
       {showModal && (
@@ -154,7 +181,7 @@ function AQ10() {
             <button
               type="button"
               className="close"
-              onClick={() => setShowModal(false)}
+              onClick={handleCloseModal}
               aria-label="Close modal"
             >
               &times;

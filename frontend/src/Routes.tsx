@@ -45,6 +45,7 @@ import AutismDetectorTrackingAndNotes from './apps/AutismDetector/trackingandnot
 import AutismDetectorGame from './apps/AutismDetector/game.js';
 import AutismDetectorTest from './apps/AutismDetector/test.js';
 import AutismDetectorFeedback from './apps/AutismDetector/feedback.js';
+import AutismDetectorEyeTracking from './apps/AutismDetector/eyeTracking.js';
 
 import EaseMind from './apps/EaseMind/EaseMind';
 import EaseMindPersonalDetails from './apps/EaseMind/PersonalDetails';
@@ -111,6 +112,7 @@ function Routes() {
         <Route path="/autism_instructions/trackingandnotes" element={<AutismDetectorTrackingAndNotes />} />
         <Route path="/autism_instructions/game" element={<AutismDetectorGame />} />
         <Route path="/autism_instructions/test" element={<AutismDetectorTest />} />
+        <Route path="/autism_instructions/eyeTracking" element={<AutismDetectorEyeTracking />} />
         <Route path="/autism_instructions/feedback" element={<AutismDetectorFeedback />} />
 
         <Route path="/DepressiLess" element={<DepressiLess />} />
