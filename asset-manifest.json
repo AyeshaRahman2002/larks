@@ -1,17 +1,14 @@
 {
   "files": {
-    "main.css": "/larks/static/css/main.3d3d0e0d.css",
-    "main.js": "/larks/static/js/main.9640bf17.js",
+    "main.css": "/larks/static/css/main.240b2e67.css",
+    "main.js": "/larks/static/js/main.110f6d7f.js",
     "static/media/ease-mind.png": "/larks/static/media/ease-mind.d24f03adeae632b5e859.png",
+    "static/media/autism-home.png": "/larks/static/media/autism-home.dcce5392db5eb6c4cef2.png",
     "static/media/roots-radar.png": "/larks/static/media/roots-radar.25a0eaf233139d7bd66b.png",
     "static/media/home.png": "/larks/static/media/home.1cfab81690700b80a517.png",
     "static/media/chatbot.png": "/larks/static/media/chatbot.0f1ee9eaeab22d544735.png",
     "static/media/tonsillitis-detector.png": "/larks/static/media/tonsillitis-detector.c1c6b386eaf0659b53a7.png",
-    "static/media/tracking&notes.png": "/larks/static/media/tracking&notes.7581e2b56c66d6eeaa2f.png",
     "static/media/autism-detector.png": "/larks/static/media/autism-detector.34ab06fd8883f198d04b.png",
-    "static/media/personaldetails.png": "/larks/static/media/personaldetails.e6854b9ce4c9820ea9b6.png",
-    "static/media/questionnaire.png": "/larks/static/media/questionnaire.5934ce4ec6ba54ea494d.png",
-    "static/media/feedback.png": "/larks/static/media/feedback.a6a93603a98686f7b69b.png",
     "static/media/paralysis-analysis.png": "/larks/static/media/paralysis-analysis.5da09ccd7f87de567286.png",
     "static/media/example.jpg": "/larks/static/media/example.c6530fff51333dd200f3.jpg",
     "static/media/mic.png": "/larks/static/media/mic.ec07501b2ab2126765ec.png",
@@ -25,11 +22,11 @@
     "static/media/userinformation-logo.png": "/larks/static/media/userinformation-logo.dd1efabbedbe95719d93.png",
     "static/media/close.png": "/larks/static/media/close.e6f6b81ee0167f4082b8.png",
     "index.html": "/larks/index.html",
-    "main.3d3d0e0d.css.map": "/larks/static/css/main.3d3d0e0d.css.map",
-    "main.9640bf17.js.map": "/larks/static/js/main.9640bf17.js.map"
+    "main.240b2e67.css.map": "/larks/static/css/main.240b2e67.css.map",
+    "main.110f6d7f.js.map": "/larks/static/js/main.110f6d7f.js.map"
   },
   "entrypoints": [
-    "static/css/main.3d3d0e0d.css",
-    "static/js/main.9640bf17.js"
+    "static/css/main.240b2e67.css",
+    "static/js/main.110f6d7f.js"
   ]
 }
