@@ -6,11 +6,14 @@ from flask_cors import CORS
 from pathlib import Path
 from flask_jwt_extended import JWTManager
 
+
+
 # Globals defined here so they can be imported.
 db = SQLAlchemy()
 migrate = Migrate()
 bcrypt = Bcrypt()
 jwt = JWTManager()
+
 
 # Application factory based on:
 # https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xv-a-better-application-structure
@@ -25,6 +28,7 @@ def create_app(testing=False):
             "SQLALCHEMY_DATABASE_URI": "sqlite://",
         })
 
+
     # If "app.py" exists in the outside folder we are in the EC2 instance and
     # we DO NOT want to include the CORS(app).
     path = Path("app.py")
@@ -38,11 +42,14 @@ def create_app(testing=False):
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
-
     db.create_all()
 
     from app.endpoints import auth_bp
     app.register_blueprint(auth_bp)
+
+
+    from app.recipeRouter import recipe_route
+    app.register_blueprint(recipe_route)
 
     # TODO: Logging
 
