@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/larks/static/css/main.240b2e67.css",
-    "main.js": "/larks/static/js/main.d34a9d86.js",
+    "main.css": "/larks/static/css/main.80e1680a.css",
+    "main.js": "/larks/static/js/main.93f2f0e6.js",
     "static/media/ease-mind.png": "/larks/static/media/ease-mind.d24f03adeae632b5e859.png",
     "static/media/autism-home.png": "/larks/static/media/autism-home.dcce5392db5eb6c4cef2.png",
     "static/media/roots-radar.png": "/larks/static/media/roots-radar.25a0eaf233139d7bd66b.png",
@@ -22,11 +22,11 @@
     "static/media/userinformation-logo.png": "/larks/static/media/userinformation-logo.dd1efabbedbe95719d93.png",
     "static/media/close.png": "/larks/static/media/close.e6f6b81ee0167f4082b8.png",
     "index.html": "/larks/index.html",
-    "main.240b2e67.css.map": "/larks/static/css/main.240b2e67.css.map",
-    "main.d34a9d86.js.map": "/larks/static/js/main.d34a9d86.js.map"
+    "main.80e1680a.css.map": "/larks/static/css/main.80e1680a.css.map",
+    "main.93f2f0e6.js.map": "/larks/static/js/main.93f2f0e6.js.map"
   },
   "entrypoints": [
-    "static/css/main.240b2e67.css",
-    "static/js/main.d34a9d86.js"
+    "static/css/main.80e1680a.css",
+    "static/js/main.93f2f0e6.js"
   ]
 }
