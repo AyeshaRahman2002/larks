@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Button, Select } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import { AuthTokenContext } from '../../../App';
+import { getFoodStyleInfo, saveFoodStyleInfo } from '../../../utils/chatbot';
 import './useChoicesFood.scss';
-import { getCookie, setCookie } from '../../../utils/cookies';
 
 interface InfoItem {
   european: boolean,
@@ -10,14 +11,18 @@ interface InfoItem {
 }
 
 function Page() {
+  const userId = sessionStorage.getItem('email') || 'userId';
+  const { token } = useContext(AuthTokenContext);
   const navigate = useNavigate();
   const [isEdit, setIsEdit] = React.useState(false);
-  const defaultInfo = JSON.stringify({
-    european: false,
-    asian: false,
-  } as InfoItem);
-  const cookiesInfo = getCookie('choicesFood') || defaultInfo;
-  const [currentInfo, setCurrentInfo] = React.useState(JSON.parse(cookiesInfo) as InfoItem);
+  const [currentInfo, setCurrentInfo] = React.useState({} as InfoItem);
+
+  const getInitDataEvent = async () => {
+    const key = `${userId}_foodStyle`;
+    const sessionData = sessionStorage.getItem(key);
+    const inifDefault = sessionData ? JSON.parse(sessionData) : await getFoodStyleInfo(token, userId);
+    setCurrentInfo(inifDefault);
+  };
 
   const handleEuropeanChange = (value: boolean) => {
     const newCurrentInfo: InfoItem = JSON.parse(JSON.stringify(currentInfo));
@@ -32,8 +37,16 @@ function Page() {
   };
 
   const onSubmitEvent = () => {
-    setCookie('choicesFood', JSON.stringify(currentInfo), { expires: 30 });
-    setIsEdit(false);
+    const reqData = {
+      userId,
+      type: 'foodStyle',
+      body: JSON.stringify(currentInfo),
+    };
+    saveFoodStyleInfo(token, reqData)
+      .then((res: any) => {
+        setCurrentInfo(res);
+        setIsEdit(false);
+      });
   };
 
   const onEditEvent = () => {
@@ -43,6 +56,13 @@ function Page() {
   const onChatbotEvent = () => {
     navigate('/Allerdine/Chatbot');
   };
+
+  // 挂件组件时初始化数据
+  React.useEffect(() => {
+    // 获取Allergens信息
+    getInitDataEvent();
+  }, []);
+
   return (
     <div className="choicesFood-body post-body">
       <div className="choicesFood-title post-top chatbot-title">

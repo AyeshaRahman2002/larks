@@ -10,14 +10,13 @@ load_dotenv()
 
 sessionVar: ContextVar[dict] = ContextVar("context_var", default={"extra":{}})
 
-#下面是先寫檔案緩存機制=>用檔案當cache的話, 硬碟要是ssd才會快,用傳統硬碟延遲就增加了,之後再看怎麼搞是否要換redis
+
 def getCachePath(token:str):
     baseDir = str(Path(os.getcwd()))
     return baseDir+str(Path("/src/logs/tmpsessions/"))+str(Path("/"))+"s_"+token+".cache"
 
 def restoreSessionVar(token:str):
-    #預設關閉 如果啟用, 每個連線階段唯一的sessionToken會在cache資料夾生成與sessionToken名稱對應的cache file
-    #同一個連線跨請求的共用狀態就可以透過這個cache file共用(別做太複雜的事情,別依賴這個做transaction)
+
     DISABLE_SESSION_FILE_CACHE = os.getenv("DISABLE_SESSION_FILE_CACHE", 1)
     if DISABLE_SESSION_FILE_CACHE or not token:
         return
@@ -45,7 +44,7 @@ def setSessionVar(value:dict):
 def getSessionVar():
     return sessionVar.get()
 
-#環境設定不要寫死代碼裡,用可以不用進git的.env動態載入替換,這檔案負責處理參數載入
+
 def get_settings():
     PROJECT_NAME = str = "AIChatFlowAPI"
     PROJECT_VERSION = str = "1.0.0"

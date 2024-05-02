@@ -2,29 +2,8 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  position: relative;
 
-  .chatbot-top {
-    flex: 0 0 auto;
-    padding: 0.5rem;
-    background: white;
-
-    display: flex;
-    align-items: center;
-
-    .chatbot-top-title {
-      flex: auto;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .chatbot-icon {
-      flex: 0 0 auto;
-    }
-  }
   .chatbot-main {
-    background: #efefef;
     flex: auto;
     padding: 0.5rem;
     overflow-y: auto;
@@ -53,10 +32,16 @@
       }
 
       .chatbot-records-tips {
-        display: none;
+        display: flex;
+        align-items: center;
+        padding: 0.5rem 0;
+
+        .chatbot-records-tips-auto {
+          display: none;
+        }
         .chatbot-records-tips-centent {
+          cursor: pointer;
           background: white;
-          margin-top: 0.5rem;
           font-size: 0.8rem;
           padding: 0.2rem 0.5rem;
           border-radius: 0.25rem;
@@ -68,13 +53,17 @@
 
     .chatbot-item-left:first-child {
       .chatbot-records-tips {
-        display: none!important;
+        .chatbot-records-tips-auto {
+          display: none!important;
+        }
       }
     }
 
     .chatbot-item-left:last-child {
       .chatbot-records-tips {
-        display: block;
+        .chatbot-records-tips-auto {
+          display: block;
+        }
       }
     }
 
@@ -166,27 +155,6 @@
         padding: 0.25rem 0.5rem;
         color: white;
         cursor: pointer;
-      }
-    }
-  }
-}
-
-.pop-up {
-  .sider-menu {
-    .chatbot-top-title {
-      flex: auto;
-      display: flex;
-      align-items: center;
-    }
-
-    .sider-menu-box {
-
-      .sider-menu-item {
-        padding: 0.5rem 1rem;
-        cursor: pointer;
-      }
-      .sider-menu-item:hover {
-        background: #32cd41;
       }
     }
   }

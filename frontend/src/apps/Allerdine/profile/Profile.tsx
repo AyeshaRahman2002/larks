@@ -1,47 +1,59 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Button, Input, Select } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import { AuthTokenContext } from '../../../App';
+import { getProfileInfo, saveProfileInfo } from '../../../utils/chatbot';
 import './useProfile.scss';
-import { getCookie, setCookie } from '../../../utils/cookies';
 
-interface profileItem {
+interface InfoItem {
   name: string,
   age: number,
   gender: string,
 }
 
 function Page() {
+  const userId = sessionStorage.getItem('email') || 'userId';
+  const { token } = useContext(AuthTokenContext);
   const navigate = useNavigate();
   const [isEdit, setIsEdit] = React.useState(false);
-  const defaultInfo = JSON.stringify({
-    name: '',
-    age: 0,
-    gender: '',
-  } as profileItem);
-  const cookiesInfo = getCookie('profile') || defaultInfo;
-  const [currentInfo, setCurrentInfo] = React.useState(JSON.parse(cookiesInfo) as profileItem);
+  const [currentInfo, setCurrentInfo] = React.useState({} as InfoItem);
+
+  const getInitDataEvent = async () => {
+    const key = `${userId}_profile`;
+    const sessionData = sessionStorage.getItem(key);
+    const inifDefault = sessionData ? JSON.parse(sessionData) : await getProfileInfo(token, userId);
+    setCurrentInfo(inifDefault);
+  };
 
   const handleNameChange = (event: any) => {
-    const newCurrentInfo: profileItem = JSON.parse(JSON.stringify(currentInfo));
+    const newCurrentInfo: InfoItem = JSON.parse(JSON.stringify(currentInfo));
     newCurrentInfo.name = event.target.value;
     setCurrentInfo(newCurrentInfo);
   };
 
   const handleAgeChange = (event: any) => {
-    const newCurrentInfo: profileItem = JSON.parse(JSON.stringify(currentInfo));
+    const newCurrentInfo: InfoItem = JSON.parse(JSON.stringify(currentInfo));
     newCurrentInfo.age = event.target.value;
     setCurrentInfo(newCurrentInfo);
   };
 
   const handleGenderChange = (value: string) => {
-    const newCurrentInfo: profileItem = JSON.parse(JSON.stringify(currentInfo));
+    const newCurrentInfo: InfoItem = JSON.parse(JSON.stringify(currentInfo));
     newCurrentInfo.gender = value;
     setCurrentInfo(newCurrentInfo);
   };
 
   const onSubmitEvent = () => {
-    setCookie('profile', JSON.stringify(currentInfo), { expires: 30 });
-    setIsEdit(false);
+    const reqData = {
+      userId,
+      type: 'profile',
+      body: JSON.stringify(currentInfo),
+    };
+    saveProfileInfo(token, reqData)
+      .then((res: any) => {
+        setCurrentInfo(res);
+        setIsEdit(false);
+      });
   };
 
   const onEditEvent = () => {
@@ -51,6 +63,13 @@ function Page() {
   const onChatbotEvent = () => {
     navigate('/Allerdine/Chatbot');
   };
+
+  // 挂件组件时初始化数据
+  React.useEffect(() => {
+    // 获取Profile信息
+    getInitDataEvent();
+  }, []);
+
   return (
     <div className="profile-body post-body">
       <div className="profile-title post-top chatbot-title">

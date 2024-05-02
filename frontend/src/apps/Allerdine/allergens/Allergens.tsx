@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Button, Select } from 'antd';
-import './useAllergens.scss';
 import { useNavigate } from 'react-router-dom';
-import { getCookie, setCookie } from '../../../utils/cookies';
+import { AuthTokenContext } from '../../../App';
+import { getAllergensInfo, saveAllergensInfo } from '../../../utils/chatbot';
+import './useAllergens.scss';
 
-interface allergensItem {
+interface InfoItem {
   milk: boolean,
   eggs: boolean,
   fish: boolean,
@@ -17,80 +18,84 @@ interface allergensItem {
 }
 
 function Allergens() {
+  const userId = sessionStorage.getItem('email') || 'userId';
+  const { token } = useContext(AuthTokenContext);
   const navigate = useNavigate();
   const [isEdit, setIsEdit] = React.useState(false);
-  // 获取过敏
-  const allergensDefaultInfo = JSON.stringify({
-    milk: false,
-    eggs: false,
-    fish: false,
-    crustaceanShellfish: false,
-    treeNuts: false,
-    peanuts: false,
-    wheat: false,
-    soybeans: false,
-    sesame: false,
-  } as allergensItem);
-  const cookiesAllergensInfo = getCookie('allergens') || allergensDefaultInfo;
-  const [allergensInfo, setAllergensInfo] = React.useState(JSON.parse(cookiesAllergensInfo) as allergensItem);
+  const [currentInfo, setCurrentInfo] = React.useState({} as InfoItem);
+
+  const getInitDataEvent = async () => {
+    const key = `${userId}_allergens`;
+    const sessionData = sessionStorage.getItem(key);
+    const inifDefault = sessionData ? JSON.parse(sessionData) : await getAllergensInfo(token, userId);
+    setCurrentInfo(inifDefault);
+  };
 
   const handleMilkChange = (value: boolean) => {
-    const newAllergensInfo: allergensItem = JSON.parse(JSON.stringify(allergensInfo));
-    newAllergensInfo.milk = value;
-    setAllergensInfo(newAllergensInfo);
+    const newCurrentInfo: InfoItem = JSON.parse(JSON.stringify(currentInfo));
+    newCurrentInfo.milk = value;
+    setCurrentInfo(newCurrentInfo);
   };
 
   const handleEggsChange = (value: boolean) => {
-    const newAllergensInfo: allergensItem = JSON.parse(JSON.stringify(allergensInfo));
-    newAllergensInfo.eggs = value;
-    setAllergensInfo(newAllergensInfo);
+    const newCurrentInfo: InfoItem = JSON.parse(JSON.stringify(currentInfo));
+    newCurrentInfo.eggs = value;
+    setCurrentInfo(newCurrentInfo);
   };
 
   const handleFishChange = (value: boolean) => {
-    const newAllergensInfo: allergensItem = JSON.parse(JSON.stringify(allergensInfo));
-    newAllergensInfo.fish = value;
-    setAllergensInfo(newAllergensInfo);
+    const newCurrentInfo: InfoItem = JSON.parse(JSON.stringify(currentInfo));
+    newCurrentInfo.fish = value;
+    setCurrentInfo(newCurrentInfo);
   };
 
   const handleCrustaceanShellfishChange = (value: boolean) => {
-    const newAllergensInfo: allergensItem = JSON.parse(JSON.stringify(allergensInfo));
-    newAllergensInfo.crustaceanShellfish = value;
-    setAllergensInfo(newAllergensInfo);
+    const newCurrentInfo: InfoItem = JSON.parse(JSON.stringify(currentInfo));
+    newCurrentInfo.crustaceanShellfish = value;
+    setCurrentInfo(newCurrentInfo);
   };
 
   const handleTreeNutsChange = (value: boolean) => {
-    const newAllergensInfo: allergensItem = JSON.parse(JSON.stringify(allergensInfo));
-    newAllergensInfo.treeNuts = value;
-    setAllergensInfo(newAllergensInfo);
+    const newCurrentInfo: InfoItem = JSON.parse(JSON.stringify(currentInfo));
+    newCurrentInfo.treeNuts = value;
+    setCurrentInfo(newCurrentInfo);
   };
 
   const handlePeanutsChange = (value: boolean) => {
-    const newAllergensInfo: allergensItem = JSON.parse(JSON.stringify(allergensInfo));
-    newAllergensInfo.peanuts = value;
-    setAllergensInfo(newAllergensInfo);
+    const newCurrentInfo: InfoItem = JSON.parse(JSON.stringify(currentInfo));
+    newCurrentInfo.peanuts = value;
+    setCurrentInfo(newCurrentInfo);
   };
 
   const handleWheatChange = (value: boolean) => {
-    const newAllergensInfo: allergensItem = JSON.parse(JSON.stringify(allergensInfo));
-    newAllergensInfo.wheat = value;
-    setAllergensInfo(newAllergensInfo);
+    const newCurrentInfo: InfoItem = JSON.parse(JSON.stringify(currentInfo));
+    newCurrentInfo.wheat = value;
+    setCurrentInfo(newCurrentInfo);
   };
 
   const handleSoybeansChange = (value: boolean) => {
-    const newAllergensInfo: allergensItem = JSON.parse(JSON.stringify(allergensInfo));
-    newAllergensInfo.soybeans = value;
-    setAllergensInfo(newAllergensInfo);
+    const newCurrentInfo: InfoItem = JSON.parse(JSON.stringify(currentInfo));
+    newCurrentInfo.soybeans = value;
+    setCurrentInfo(newCurrentInfo);
   };
 
   const handleSesameChange = (value: boolean) => {
-    const newAllergensInfo: allergensItem = JSON.parse(JSON.stringify(allergensInfo));
-    newAllergensInfo.sesame = value;
-    setAllergensInfo(newAllergensInfo);
+    const newCurrentInfo: InfoItem = JSON.parse(JSON.stringify(currentInfo));
+    newCurrentInfo.sesame = value;
+    setCurrentInfo(newCurrentInfo);
   };
 
   const onSubmitAllergensEvent = () => {
-    setCookie('allergens', JSON.stringify(allergensInfo), { expires: 30 });
-    setIsEdit(false);
+    const reqData = {
+      userId,
+      type: 'allergens',
+      body: JSON.stringify(currentInfo),
+    };
+    saveAllergensInfo(token, reqData)
+      .then((res: any) => {
+        setCurrentInfo(res);
+        setIsEdit(false);
+      });
   };
 
   const onEditAllergensEvent = () => {
@@ -100,6 +105,13 @@ function Allergens() {
   const onChatbotEvent = () => {
     navigate('/Allerdine/Chatbot');
   };
+
+  // 挂件组件时初始化数据
+  React.useEffect(() => {
+    // 获取Allergens信息
+    getInitDataEvent();
+  }, []);
+
   return (
     <div className="allergens-body post-body">
       <div className="allergens-title post-top chatbot-title">
@@ -111,7 +123,7 @@ function Allergens() {
           <div className="edit-item-content">
             {isEdit && (
               <Select
-                defaultValue={allergensInfo.milk}
+                defaultValue={currentInfo.milk}
                 style={{ width: 120 }}
                 onChange={handleMilkChange}
                 options={[
@@ -120,7 +132,7 @@ function Allergens() {
                 ]}
               />
             )}
-            {!isEdit && (allergensInfo.milk ? 'Yes' : 'No')}
+            {!isEdit && (currentInfo.milk ? 'Yes' : 'No')}
           </div>
         </div>
         <div className="edit-item row-item">
@@ -128,7 +140,7 @@ function Allergens() {
           <div className="edit-item-content">
             {isEdit && (
               <Select
-                defaultValue={allergensInfo.eggs}
+                defaultValue={currentInfo.eggs}
                 style={{ width: 120 }}
                 onChange={handleEggsChange}
                 options={[
@@ -137,7 +149,7 @@ function Allergens() {
                 ]}
               />
             )}
-            {!isEdit && (allergensInfo.eggs ? 'Yes' : 'No')}
+            {!isEdit && (currentInfo.eggs ? 'Yes' : 'No')}
           </div>
         </div>
         <div className="edit-item row-item">
@@ -145,7 +157,7 @@ function Allergens() {
           <div className="edit-item-content">
             {isEdit && (
               <Select
-                defaultValue={allergensInfo.fish}
+                defaultValue={currentInfo.fish}
                 style={{ width: 120 }}
                 onChange={handleFishChange}
                 options={[
@@ -154,7 +166,7 @@ function Allergens() {
                 ]}
               />
             )}
-            {!isEdit && (allergensInfo.fish ? 'Yes' : 'No')}
+            {!isEdit && (currentInfo.fish ? 'Yes' : 'No')}
           </div>
         </div>
         <div className="edit-item row-item">
@@ -162,7 +174,7 @@ function Allergens() {
           <div className="edit-item-content">
             {isEdit && (
               <Select
-                defaultValue={allergensInfo.crustaceanShellfish}
+                defaultValue={currentInfo.crustaceanShellfish}
                 style={{ width: 120 }}
                 onChange={handleCrustaceanShellfishChange}
                 options={[
@@ -171,7 +183,7 @@ function Allergens() {
                 ]}
               />
             )}
-            {!isEdit && (allergensInfo.crustaceanShellfish ? 'Yes' : 'No')}
+            {!isEdit && (currentInfo.crustaceanShellfish ? 'Yes' : 'No')}
           </div>
         </div>
         <div className="edit-item row-item">
@@ -179,7 +191,7 @@ function Allergens() {
           <div className="edit-item-content">
             {isEdit && (
               <Select
-                defaultValue={allergensInfo.treeNuts}
+                defaultValue={currentInfo.treeNuts}
                 style={{ width: 120 }}
                 onChange={handleTreeNutsChange}
                 options={[
@@ -188,7 +200,7 @@ function Allergens() {
                 ]}
               />
             )}
-            {!isEdit && (allergensInfo.treeNuts ? 'Yes' : 'No')}
+            {!isEdit && (currentInfo.treeNuts ? 'Yes' : 'No')}
           </div>
         </div>
         <div className="edit-item row-item">
@@ -196,7 +208,7 @@ function Allergens() {
           <div className="edit-item-content">
             {isEdit && (
               <Select
-                defaultValue={allergensInfo.peanuts}
+                defaultValue={currentInfo.peanuts}
                 style={{ width: 120 }}
                 onChange={handlePeanutsChange}
                 options={[
@@ -205,7 +217,7 @@ function Allergens() {
                 ]}
               />
             )}
-            {!isEdit && (allergensInfo.peanuts ? 'Yes' : 'No')}
+            {!isEdit && (currentInfo.peanuts ? 'Yes' : 'No')}
           </div>
         </div>
         <div className="edit-item row-item">
@@ -213,7 +225,7 @@ function Allergens() {
           <div className="edit-item-content">
             {isEdit && (
               <Select
-                defaultValue={allergensInfo.wheat}
+                defaultValue={currentInfo.wheat}
                 style={{ width: 120 }}
                 onChange={handleWheatChange}
                 options={[
@@ -222,7 +234,7 @@ function Allergens() {
                 ]}
               />
             )}
-            {!isEdit && (allergensInfo.wheat ? 'Yes' : 'No')}
+            {!isEdit && (currentInfo.wheat ? 'Yes' : 'No')}
           </div>
         </div>
         <div className="edit-item row-item">
@@ -230,7 +242,7 @@ function Allergens() {
           <div className="edit-item-content">
             {isEdit && (
               <Select
-                defaultValue={allergensInfo.soybeans}
+                defaultValue={currentInfo.soybeans}
                 style={{ width: 120 }}
                 onChange={handleSoybeansChange}
                 options={[
@@ -239,7 +251,7 @@ function Allergens() {
                 ]}
               />
             )}
-            {!isEdit && (allergensInfo.soybeans ? 'Yes' : 'No')}
+            {!isEdit && (currentInfo.soybeans ? 'Yes' : 'No')}
           </div>
         </div>
         <div className="edit-item row-item">
@@ -247,7 +259,7 @@ function Allergens() {
           <div className="edit-item-content">
             {isEdit && (
               <Select
-                defaultValue={allergensInfo.sesame}
+                defaultValue={currentInfo.sesame}
                 style={{ width: 120 }}
                 onChange={handleSesameChange}
                 options={[
@@ -256,7 +268,7 @@ function Allergens() {
                 ]}
               />
             )}
-            {!isEdit && (allergensInfo.sesame ? 'Yes' : 'No')}
+            {!isEdit && (currentInfo.sesame ? 'Yes' : 'No')}
           </div>
         </div>
       </div>
@@ -289,4 +301,5 @@ function Allergens() {
     </div>
   );
 }
+
 export default Allergens;

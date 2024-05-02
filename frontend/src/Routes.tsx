@@ -53,6 +53,9 @@ import AllerdineChatbotIndex from './apps/Allerdine/index/Index';
 import Profile from './apps/Allerdine/profile/Profile';
 import Allergens from './apps/Allerdine/allergens/Allergens';
 import ChoicesFood from './apps/Allerdine/choicesfood/ChoicesFood';
+import Recipe from './apps/Allerdine/recipe/Recipe';
+import RecipeDetails from './apps/Allerdine/recipe/RecipeDetails';
+import Terms from './apps/Allerdine/terms/Terms';
 
 // If we want to check each time? Maybe it could be a use memo for when the token changes only?
 // https://stackoverflow.com/questions/60017604/react-router-check-that-jwt-is-valid-before-rendering-a-private-route
@@ -118,10 +121,12 @@ function Routes() {
           <Route path="profile" element={<Profile />} />
           <Route path="allergens" element={<Allergens />} />
           <Route path="choicesFood" element={<ChoicesFood />} />
+          <Route path="recipe" element={<Recipe />} />
+          <Route path="recipeDetalis" element={<RecipeDetails />} />
+          <Route path="terms" element={<Terms />} />
         </Route>
 
       </Route>
-
       {/* TODO: We need to add a proper error page or pages. */}
       <Route
         path="/error400"

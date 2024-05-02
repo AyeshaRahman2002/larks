@@ -1,25 +1,26 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Input, Drawer } from 'antd';
-import './useIndex.scss';
-import menuL from '../../../images/menu_l.png';
-import menuI from '../../../images/menu_i.png';
+import React, { useContext } from 'react';
+import { Input } from 'antd';
+import { AuthTokenContext } from '../../../App';
+import { getAllergensInfo, getFoodStyleInfo, saveLoveRecipeInfo } from '../../../utils/chatbot';
+import { ISaveRecipeReqNode } from '../../../utils/cbinterface';
 import aiPng from '../../../images/chatbot.png';
-import { getCookie, setCookie } from '../../../utils/cookies';
+import './useIndex.scss';
 
 const { TextArea } = Input;
 
-interface IChatListItem {
+interface IChatItemNode {
   author: string;
   body: string;
   status?: boolean;
   timestamp?: number;
+  recipeName?: string;
+  isSaveRecipe?: boolean;
 }
 
-interface IChatItem {
+interface IChatChildNode {
   icon: string;
   isShowTime?: boolean;
-  value: IChatListItem;
+  value: IChatItemNode;
   onClick?: any;
 }
 
@@ -27,7 +28,7 @@ const BASEURL = process.env.NODE_ENV === 'development'
   ? process.env.REACT_APP_CHAT_DEV
   : process.env.REACT_APP_CHAT_PROD;
 
-// 请求回复内容
+// request response
 const callapi = async (url: string, data: any) => new Promise((resolve, reject) => {
   fetch(BASEURL + url, data)
     .then((response: any) => {
@@ -38,21 +39,20 @@ const callapi = async (url: string, data: any) => new Promise((resolve, reject) 
     });
 });
 
-// 时间戳转时间字符串
+// Time setting
 const getDateTime = (timestamp: number) => {
   const date = new Date(timestamp);
-  // 使用Date对象的方法来获取所需的日期和时间部分
   const year = date.getUTCFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // 月份是从0开始的，所以需要+1，并使用padStart来确保总是两位数
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // 月份是從0開始的，所以需要+1，並使用padStart來確保總是兩位數
   const day = String(date.getUTCDate()).padStart(2, '0');
   const hours = String(date.getHours()).padStart(2, '0');
   const minutes = String(date.getMinutes()).padStart(2, '0');
-  // 将这些部分组合成一个字符串，形成所需的日期时间格式
+  // combine
   const dateTimeString = `${day}/${month}/${year} ${hours}:${minutes}`;
   return dateTimeString;
 };
 
-// 时间戳转时间字符串
+//
 const isShoeDateTime = (timestamp1 = 0, timestamp2 = 0, interval = 5) => {
   if (!timestamp1) return false;
   if (!timestamp2) return true;
@@ -65,17 +65,13 @@ const isShoeDateTime = (timestamp1 = 0, timestamp2 = 0, interval = 5) => {
   return false;
 };
 
-const encodeURI = (str: string) => (str ? encodeURIComponent(str) : undefined);
-
-const decodeURI = (str: string) => (str ? decodeURIComponent(str) : undefined);
-
 function ChatItemLeft(
   {
     icon,
     isShowTime,
     value,
     onClick,
-  }: IChatItem,
+  }: IChatChildNode,
 ) {
   const htmlStr = { __html: value.body };
   return (
@@ -94,18 +90,31 @@ function ChatItemLeft(
         <div className="chatbot-item-records col-item">
           <div className="chatbot-records-content" dangerouslySetInnerHTML={htmlStr} />
           <div className="chatbot-records-tips">
-            { value.status ? (
+            <div className="chatbot-records-tips-auto col-item">
+              { value.status ? (
+                <div
+                  tabIndex={0}
+                  role="button"
+                  className="chatbot-records-tips-centent chatbot-btn"
+                  onClick={() => onClick('reanswer')}
+                  onKeyDown={() => onClick('reanswer')}
+                >
+                  regenerate the answer
+                </div>
+              ) : (
+                <div className="chatbot-records-tips-centent">AI is answering</div>
+              ) }
+            </div>
+            { (!!value.recipeName && !value.isSaveRecipe && value.status) && (
               <div
                 tabIndex={0}
                 role="button"
-                className="chatbot-records-tips-centent chatbot-btn"
-                onClick={onClick}
-                onKeyDown={onClick}
+                className="chatbot-records-tips-centent col-item"
+                onClick={() => onClick('saveRecipe', value)}
+                onKeyDown={() => onClick('saveRecipe', value)}
               >
-                Regenerate the answer
+                save recipes
               </div>
-            ) : (
-              <div className="chatbot-records-tips-centent">AI is answering</div>
             ) }
           </div>
         </div>
@@ -120,7 +129,7 @@ function ChatItemRight(
     isShowTime,
     value,
     onClick,
-  }: IChatItem,
+  }: IChatChildNode,
 ) {
   const htmlStr = { __html: value.body };
   return (
@@ -137,7 +146,7 @@ function ChatItemRight(
               tabIndex={0}
               role="button"
               className="chatbot-records-tips"
-              title="重新发送"
+              title="resend"
               onClick={() => onClick(value)}
               onKeyDown={() => onClick(value)}
             >
@@ -157,31 +166,64 @@ function ChatItemRight(
 }
 
 function Home() {
+  const userId = sessionStorage.getItem('email') || 'userId';
+  const { token } = useContext(AuthTokenContext);
   const [streamRecords, setStreamRecords] = React.useState(null as any);
-  const [streamChangeFlag, setStreamChangeFlag] = React.useState(0);
-  // 聊天变更说明
-  const [chatChangeFlah, setChatChangeFlah] = React.useState(0);
-  // 请求标识
-  const [initFlag, setInitFlag] = React.useState(false);
-  // AI繁忙标识
-  const [aiBusyFlag, setAiBusyFlag] = React.useState(false);
-  // 过敏原
-  const [allergensInfo, setAllergensInfo] = React.useState(null);
-  // 风格
-  const [choicesFoodInfo, setChoicesFoodInfo] = React.useState(null);
-  // 聊天记录
-  const [chatList, setChatList] = React.useState([] as IChatListItem[]);
+  const [streamChangeFlag, setStreamChangeFlag] = React.useState(0 as number);
+  // change
+  const [chatChangeFlah, setChatChangeFlah] = React.useState(0 as number);
+  const [initFlag, setInitFlag] = React.useState(false as boolean);
+  const [aiBusyFlag, setAiBusyFlag] = React.useState(false as boolean);
+  const [allergensInfo, setAllergensInfo] = React.useState(null as any);
+  const [foodStyleInfo, setFoodStyleInfo] = React.useState(null as any);
+  const [chatList, setChatList] = React.useState([] as IChatItemNode[]);
 
-  // 聊天内容盒子
-  const contentRef = React.useRef<HTMLDivElement>(null);
-  // 菜单按钮标识
-  const [isOpenMenu, setIsOpenMenu] = React.useState(false);
-  // 聊天信息
-  const [messag, setMessag] = React.useState({} as IChatListItem);
-  // 聊天信息
-  const [inTxt, setIntxt] = React.useState('');
+  // chatbot
+  const contentRef = React.useRef<HTMLDivElement>(null as any);
+  // info
+  const [messag, setMessag] = React.useState({} as IChatItemNode);
+  // info
+  const [inTxt, setIntxt] = React.useState('' as string);
 
-  // 设置滚动条高度
+  // get allergen style
+  const getAllergensInfoEvent = async () => {
+    const initAllergensInfo = await getAllergensInfo(token, userId);
+    setAllergensInfo(initAllergensInfo);
+  };
+
+  // get food style
+  const getFoodStyleEvent = async () => {
+    const initFoodStyle = await getFoodStyleInfo(token, userId);
+    setFoodStyleInfo(initFoodStyle);
+  };
+
+  // get chat history
+  const getChatListEvent = async () => {
+    const chatHistoryDefault = JSON.stringify([
+      {
+        author: 'assistant',
+        body: 'This is a demo, please ask questions about meal planning!',
+        status: true,
+        timestamp: new Date().getTime(),
+      },
+    ] as IChatItemNode[]);
+    const chatHistoryInfo = sessionStorage.getItem('chatHistory') || chatHistoryDefault;
+    const chatHistoryCookie = JSON.parse(chatHistoryInfo);
+    setChatList(chatHistoryCookie);
+  };
+
+  const initDataEvent = () => {
+    // get allergen
+    getAllergensInfoEvent();
+    // get style
+    getFoodStyleEvent();
+    // get chat history
+    getChatListEvent();
+    // initialize
+    setInitFlag(true);
+  };
+
+  // scroll height
   const setScrollHeightEvent = () => {
     const node = contentRef.current;
     if (node) {
@@ -190,20 +232,27 @@ function Home() {
     }
   };
 
-  // 更新聊天记录缓存
-  const uploadChatHistoryCookieEvent = () => {
-    const curChatList = chatList.length > 10 ? chatList.slice(-10) : chatList;
-    const curChatListInfo = JSON.stringify(curChatList);
-    // 将数据转URLCODE解决IOS浏览器COOKIES不能存储中文问题
-    const curChatListURLCode = encodeURI(curChatListInfo) || '';
-    setCookie('chatHistory', curChatListURLCode, { expires: 30 });
+  // update chat history
+  const uploadChatHistoryEvent = () => {
+    const curChatListInfo = JSON.stringify(chatList);
+    sessionStorage.setItem('chatHistory', curChatListInfo);
   };
 
   const handleResMsgEvent = async (decoded: string, done: any) => {
     const chatListArr = chatList;
-    let lastRecord: IChatListItem = chatListArr.pop() || {} as IChatListItem;
+    let lastRecord: IChatItemNode = chatListArr.pop() || {} as IChatItemNode;
     if (lastRecord.author === 'assistant') {
       lastRecord.body += decoded;
+      // checking whether is recipe
+      if (lastRecord.body.indexOf('《') > -1 && !lastRecord.recipeName) {
+        const regex = /《([^>]*)》/g;
+        const matches = lastRecord.body.match(regex);
+        if (matches && matches.length > 0) {
+          const recipeName: string = matches[0];
+          lastRecord.recipeName = recipeName.replaceAll('《', '')
+            .replaceAll('》', '');
+        }
+      }
     } else {
       if (lastRecord.author === 'user') lastRecord.status = true;
       chatListArr.push(JSON.parse(JSON.stringify(lastRecord)));
@@ -212,16 +261,16 @@ function Home() {
         body: decoded,
         status: false,
         timestamp: new Date().getTime(),
-      } as IChatListItem;
+      } as IChatItemNode;
     }
     if (done) {
-      console.log('ai回复信息结束');
+      console.log('The ai replies to the message');
       lastRecord.status = true;
       lastRecord.timestamp = new Date().getTime();
     }
     chatListArr.push(lastRecord);
     setChatList(chatListArr);
-    // 更新聊天变更标识
+    // update
     setChatChangeFlah(new Date().getTime());
   };
 
@@ -230,22 +279,22 @@ function Home() {
       author: string,
       body: string,
     }[];
-    // 获取所需提交的历史记录
+    // get history
     const chatHistoryDefault = JSON.stringify([
       {
         author: 'assistant',
-        body: 'This is demo, please ask the question for the meal plan!',
+        body: 'This is a demo, please ask questions about meal planning!',
         status: true,
         timestamp: new Date().getTime(),
       },
-    ] as IChatListItem[]);
-    const chatHistoryCookies = getCookie('chatHistory');
-    const chatHistoryCookiesURLCode = decodeURI(chatHistoryCookies);
-    const chatHistoryInfo = chatHistoryCookiesURLCode || chatHistoryDefault;
-    let chatHistoryCookie = JSON.parse(chatHistoryInfo);
-    chatHistoryCookie = chatHistoryCookie.filter((obj: IChatListItem) => obj.timestamp !== messag.timestamp && obj.status);
-    chatHistoryList = chatHistoryCookie.map((obj: IChatListItem) => ({ author: obj.author, body: obj.body }));
-    // get allergen
+    ] as IChatItemNode[]);
+    const chatHistoryInfo = sessionStorage.getItem('chatHistory') || chatHistoryDefault;
+    let chatHistorySession = JSON.parse(chatHistoryInfo);
+    chatHistorySession = chatHistorySession.length > 10 ? chatHistorySession.slice(-10) : chatHistorySession;
+    chatHistoryList = chatHistorySession
+      .filter((obj: IChatItemNode) => obj.timestamp !== messag.timestamp && obj.status)
+      .map((obj: IChatItemNode) => ({ author: obj.author, body: obj.body }));
+
     const allergensInfos = [] as string[];
     const allergensInfoObj: any = allergensInfo;
     const allergensInfoKeys = Object.keys(allergensInfoObj);
@@ -256,21 +305,21 @@ function Home() {
         }
       });
     }
-    // get styles of food
-    const choicesFoodInfos = [] as string[];
-    const choicesFoodInfoObj: any = choicesFoodInfo;
-    const choicesFoodInfoKeys = Object.keys(choicesFoodInfoObj);
-    if (choicesFoodInfoKeys.length > 0) {
-      choicesFoodInfoKeys.forEach((k: any) => {
-        if (choicesFoodInfoObj[k]) {
-          choicesFoodInfos.push(k);
+    // get food choice
+    const foodStyleInfos = [] as string[];
+    const foodStyleInfoObj: any = foodStyleInfo;
+    const foodStyleInfoKeys = Object.keys(foodStyleInfoObj);
+    if (foodStyleInfoKeys.length > 0) {
+      foodStyleInfoKeys.forEach((k: any) => {
+        if (foodStyleInfoObj[k]) {
+          foodStyleInfos.push(k);
         }
       });
     }
-    // 组装SYS信息
+    // sys info combined
     const sysBody = {
       allergens: allergensInfos.join(),
-      choicesFood: choicesFoodInfos.join(),
+      choicesFood: foodStyleInfos.join(),
     };
     const sysChat = {
       author: 'system',
@@ -293,7 +342,7 @@ function Home() {
       },
       body: JSON.stringify({ question: messag.body, chat_history: chatHistory }),
     };
-    callapi('demo/demo_gen_recipe', data)
+    callapi('demo/db_demo_gen_recipe', data)
       .then((res: any) => {
         const reader = res.body.getReader();
         if (reader) {
@@ -303,58 +352,90 @@ function Home() {
       })
       .catch(() => {
         messag.status = false;
-        const curChatList = chatList.filter((obj: IChatListItem) => messag.timestamp !== obj.timestamp);
+        const curChatList = chatList.filter((obj: IChatItemNode) => messag.timestamp !== obj.timestamp);
         curChatList.push(messag);
         setChatList(curChatList);
         setAiBusyFlag(false);
-        // 更新聊天变更标识
+        // update
         setChatChangeFlah(new Date().getTime());
       });
   };
 
-  // 重新回答
+  // save reciepe
+  const saveRecipeEvent = async (obj: IChatItemNode) => {
+    const reqData = {
+      userId,
+      name: obj.recipeName,
+      body: obj.body,
+    } as ISaveRecipeReqNode;
+    await saveLoveRecipeInfo(token, reqData)
+      .then(() => {
+        const newChatList = chatList.map((val: IChatItemNode) => {
+          const o = JSON.parse(JSON.stringify(val));
+          if (val.timestamp === obj.timestamp) o.isSaveRecipe = true;
+          return o;
+        });
+        setChatList(newChatList);
+        setChatChangeFlah(new Date().getTime());
+      });
+  };
+
+  // re-answer
   const onRereplyEvent = async () => {
     if (aiBusyFlag) {
-      alert('AI还在忙,等等在提问');
+      alert('AI is still busy. Wait for questions');
       return;
     }
     if (JSON.stringify(messag) !== '{}') {
-      const newChatList: IChatListItem[] = JSON.parse(JSON.stringify(chatList));
+      const newChatList: IChatItemNode[] = JSON.parse(JSON.stringify(chatList));
       newChatList.pop();
       setChatList(newChatList);
-      const newMessage: IChatListItem = JSON.parse(JSON.stringify(messag));
+      const newMessage: IChatItemNode = JSON.parse(JSON.stringify(messag));
       newMessage.timestamp = new Date().getTime();
       setMessag(newMessage);
-      // 更新聊天变更标识
+      // update icon
       setChatChangeFlah(new Date().getTime());
     } else {
-      alert('请先提交问题');
+      alert('Please submit your question first');
     }
   };
 
-  // 重新发送
-  const onResendEvent = async (obj: IChatListItem) => {
+  const onChatItemLeftEvent = async (sign: string, obj: IChatItemNode) => {
+    switch (sign) {
+      case 'reanswer':
+        onRereplyEvent();
+        break;
+      case 'saveRecipe':
+        saveRecipeEvent(obj);
+        break;
+      default:
+        break;
+    }
+  };
+
+  // resend
+  const onResendEvent = async (obj: IChatItemNode) => {
     if (aiBusyFlag) {
-      alert('AI还在忙,等等在提问');
+      alert('AI is still busy. Wait for questions');
       return;
     }
     const currentMessage = JSON.parse(JSON.stringify(obj));
     currentMessage.status = true;
     currentMessage.timestamp = new Date().getTime();
     setMessag(currentMessage);
-    const currentChatList = chatList.filter((val: IChatListItem) => val.timestamp !== obj.timestamp);
+    const currentChatList = chatList.filter((val: IChatItemNode) => val.timestamp !== obj.timestamp);
     currentChatList.push(currentMessage);
     setChatList(currentChatList);
-    // 更新聊天变更标识
+    // change icon
     setChatChangeFlah(new Date().getTime());
   };
 
-  // 发送聊天信息
+  // send message
   const onSendMsgEvent = async () => {
     const sendMsg = inTxt.trim();
     if (sendMsg.length === 0) return;
     if (aiBusyFlag) {
-      alert('AI还在忙,等等在提问');
+      alert('AI is still busy. Wait for questions');
       return;
     }
     const msgObj = {
@@ -362,13 +443,13 @@ function Home() {
       body: sendMsg,
       status: true,
       timestamp: new Date().getTime(),
-    } as IChatListItem;
+    } as IChatItemNode;
     const chatListObj = JSON.parse(JSON.stringify(chatList));
     chatListObj.push(msgObj);
     setChatList(chatListObj);
-    // 保存聊天信息
+    // save chat history
     setMessag(msgObj);
-    // 清空输入空内容
+    // clear text
     setIntxt('');
     // 更新聊天变更标识
     setChatChangeFlah(new Date().getTime());
@@ -376,43 +457,8 @@ function Home() {
 
   // 挂件组件时初始化数据
   React.useEffect(() => {
-    // 获取过敏原
-    const allergensDefaultInfo = JSON.stringify({
-      milk: false,
-      eggs: false,
-      fish: false,
-      crustaceanShellfish: false,
-      treeNuts: false,
-      peanuts: false,
-      wheat: false,
-      soybeans: false,
-      sesame: false,
-    });
-    const cookiesAllergensInfo = getCookie('allergens') || allergensDefaultInfo;
-    setAllergensInfo(JSON.parse(cookiesAllergensInfo));
-    // get food style
-    const choicesFoodDefaultInfo = JSON.stringify({
-      european: false,
-      asian: false,
-    });
-    const cookiesChoicesFoodInfo = getCookie('choicesFood') || choicesFoodDefaultInfo;
-    setChoicesFoodInfo(JSON.parse(cookiesChoicesFoodInfo));
-    // get and set up chat history
-    const chatHistoryDefault = JSON.stringify([
-      {
-        author: 'assistant',
-        body: 'This is demo, please ask the question for the meal plan!',
-        status: true,
-        timestamp: new Date().getTime(),
-      },
-    ] as IChatListItem[]);
-    const chatHistoryCookies = getCookie('chatHistory');
-    const chatHistoryCookiesURLCode = decodeURI(chatHistoryCookies);
-    const chatHistoryInfo = chatHistoryCookiesURLCode || chatHistoryDefault;
-    const chatHistoryCookie = JSON.parse(chatHistoryInfo);
-    setChatList(chatHistoryCookie);
-    // 设置初始化状态
-    setInitFlag(true);
+    // 初始化数据
+    initDataEvent();
   }, []);
 
   // 组件初始化完成操作相关事件
@@ -427,7 +473,7 @@ function Home() {
       // 更新聊天内容滚动条位置
       setScrollHeightEvent();
       // 更新聊天记录缓存
-      uploadChatHistoryCookieEvent();
+      uploadChatHistoryEvent();
     }
   }, [chatChangeFlah]);
 
@@ -451,7 +497,7 @@ function Home() {
           setStreamChangeFlag(new Date().getTime());
           handleResMsgEvent(decoded, done);
           if (done) {
-            console.log('流结束时关闭连接');
+            console.log('Close the connection at the end of the stream');
             setAiBusyFlag(false);
             // 流结束时关闭连接
             streamRecords.releaseLock();
@@ -466,28 +512,9 @@ function Home() {
 
   return (
     <div className="chatbot-body">
-      <div className="chatbot-top">
-        <div
-          tabIndex={0}
-          role="button"
-          className="chatbot-top-icon chatbot-icon"
-          onClick={() => setIsOpenMenu(true)}
-          onKeyDown={() => setIsOpenMenu(true)}
-        >
-          <img src={isOpenMenu ? menuL : menuI} alt="menu" />
-        </div>
-        <div className="chatbot-top-title">
-          <div className="chatbot-icon">
-            <img src={aiPng} alt="menu" />
-          </div>
-          <div className="chatbot-label">
-            Allergy Chatbot
-          </div>
-        </div>
-      </div>
       <div ref={contentRef} className="chatbot-main">
         {
-          chatList.map((obj: IChatListItem, index: number) => {
+          chatList.map((obj: IChatItemNode, index: number) => {
             const value = JSON.parse(JSON.stringify(obj));
             const msgTxt = obj.body.replaceAll('\n', '<br />');
             value.body = msgTxt;
@@ -499,7 +526,7 @@ function Home() {
                   icon={aiPng}
                   isShowTime={isShoeDateTime(value.timestamp, prevTimestamp)}
                   value={value}
-                  onClick={onRereplyEvent}
+                  onClick={onChatItemLeftEvent}
                 />
               );
             }
@@ -528,43 +555,6 @@ function Home() {
             Send
           </button>
         </div>
-      </div>
-      <div className="pop-up">
-        <Drawer
-          title={
-            (
-              <div className="chatbot-top-title">
-                <div className="chatbot-icon">
-                  <img src={aiPng} alt="menu" />
-                </div>
-                <div className="chatbot-label">
-                  Allergy Chatbot
-                </div>
-              </div>
-            )
-          }
-          className="sider-menu"
-          placement="left"
-          closable={false}
-          onClose={() => setIsOpenMenu(false)}
-          open={isOpenMenu}
-          getContainer={false}
-        >
-          <div className="sider-menu-box">
-            <div className="sider-menu-item">
-              <Link to="profile">Profile</Link>
-            </div>
-            <div className="sider-menu-item">
-              <Link to="allergens">Allergens List</Link>
-            </div>
-            <div className="sider-menu-item">
-              <Link to="choicesFood">Food Choices</Link>
-            </div>
-            <div className="sider-menu-item">
-              <Link to="terms">Terms and services</Link>
-            </div>
-          </div>
-        </Drawer>
       </div>
     </div>
   );
