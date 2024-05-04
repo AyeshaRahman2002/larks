@@ -16,7 +16,8 @@ from app.kevin.kevin import *  # noqa: F403, F401
 from app.lanre.lanre import *  # noqa: F403, F401
 from app.ramat.ramat import *  # noqa: F403, F401
 #from app.shreyas.shreyas import *  # noqa: F403, F401
-from app.rootsRadar.rootsRadar import *  # noqa: F403, F401
+from app.rootsRadar.rootsRadar import * # noqa: F403, F401
+from app.EaseMind.EaseMind import * # noqa: F403, F401
 from app.AutismDetector.AutismDetector import *  # noqa: F403, F401
 
 
