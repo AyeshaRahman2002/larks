@@ -20,11 +20,8 @@ interface MenuItemNode {
 function chatbot() {
   const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(true);
-  // 菜单按钮标识
   const [isOpenMenu, setIsOpenMenu] = React.useState(false as boolean);
-  // 标题
   const [title, setTitle] = React.useState('Allergen chatbot' as string);
-  // 菜单按钮标识
   const [menuItemList, setMenuItemList] = React.useState([] as MenuItemNode[]);
 
   const onMenuEvent = (menu: MenuItemNode) => {
